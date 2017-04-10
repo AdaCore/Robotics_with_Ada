@@ -1,0 +1,23 @@
+with "Ada_Drivers_Library\boards\stm32f429_discovery.gpr";
+with "Ada_Drivers_Library\boards\common_config.gpr";
+
+project Demo extends "Ada_Drivers_Library\examples\common\common.gpr" is
+
+   for Main use ("demo_touch_sensor.adb");
+
+   for Runtime ("Ada") use STM32F429_Discovery'Runtime ("Ada");
+
+   for Target use "arm-eabi";
+
+   for Languages use ("Ada");
+
+   for Source_Dirs use ("src/**");
+
+   case Common_Config.Build is 
+      when "Production" =>
+         for Object_Dir use "obj\production";
+      when "Debug" =>
+         for Object_Dir use "obj\debug";
+   end case;
+
+end Demo;
