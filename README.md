@@ -1,8 +1,9 @@
 # Robotics_with_Ada
 Robotics with Ada, ARM, and Lego
 
-This program demonstrates interfacing to Lego NXT Mindstorms sensors and
-effectors using Ada and low-cost ARM evaluation boards.
+This program demonstrates interfacing to Lego NXT Mindstorms sensors and 
+effectors using Ada and low-cost ARM evaluation boards instead of the 
+NXT Mindstorms Brick. 
 
 Note: clone recursively, because a local copy of the Ada Driver Library
 is expected, located at the project root level (as referenced in the
