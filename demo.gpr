@@ -1,11 +1,14 @@
-with "Ada_Drivers_Library\boards\stm32f429_discovery.gpr";
-with "Ada_Drivers_Library\boards\common_config.gpr";
+with "Ada_Drivers_Library/boards/stm32f407_discovery/stm32f407_discovery.gpr";
 
-project Demo extends "Ada_Drivers_Library\examples\common\common.gpr" is
+project Demo extends "Ada_Drivers_Library/examples/shared/common/common.gpr" is
 
-   for Main use ("demo_touch_sensor.adb");
+   type Build_Type is ("Production", "Debug");
 
-   for Runtime ("Ada") use STM32F429_Discovery'Runtime ("Ada");
+   App_BUILD : Build_Type := external ("APP_BUILD", "Debug");
+
+   for Main use ("demo_motors.adb", "demo_touch_sensor.adb");
+
+   for Runtime ("Ada") use STM32F407_Discovery'Runtime ("Ada");
 
    for Target use "arm-eabi";
 
@@ -13,11 +16,20 @@ project Demo extends "Ada_Drivers_Library\examples\common\common.gpr" is
 
    for Source_Dirs use ("src/**");
 
-   case Common_Config.Build is 
-      when "Production" =>
-         for Object_Dir use "obj\production";
-      when "Debug" =>
-         for Object_Dir use "obj\debug";
-   end case;
+   for Object_Dir use "obj/" & App_BUILD;
+
+   package Compiler is
+      case App_BUILD is
+         when "Production" =>
+            for Default_Switches ("Ada") use
+              ("-g", "-O3", "-gnatp", "-gnatn");
+         when "Debug" =>
+            for Default_Switches ("Ada") use
+              ("-g", "-O0", "-gnata", "-fcallgraph-info=su");
+      end case;
+      for Default_Switches ("ada") use Compiler'Default_Switches ("Ada") &
+        ("-gnatwa", "-gnatQ", "-gnatw.X", "-gnaty", "-gnatyO", "-gnatyM120",
+         "-ffunction-sections", "-fdata-sections");
+   end Compiler;
 
 end Demo;
