@@ -80,9 +80,7 @@ package body Discrete_Inputs is
    begin
       Enable_Clock (This.Pin.all);
 
-      Config.Mode := Mode_In;
-      Config.Resistors := (if This.Active = High then Pull_Down else Pull_Up);
-      Config.Speed := Speed_50MHz;
+      Config := (Mode_In, Resistors => (if This.Active = High then Pull_Down else Pull_Up));
       This.Pin.Configure_IO (Config);
    end Initialize_Hardware;
 

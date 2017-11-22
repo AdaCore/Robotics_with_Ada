@@ -42,7 +42,7 @@ package body NXT.Analog_Sensors is
    is
    begin
       Enable_Clock (This.Input_Pin.all);
-      This.Input_Pin.Configure_IO ((Mode_Analog, Resistors => Floating, others => <>));
+      This.Input_Pin.Configure_IO ((Mode_Analog, Resistors => Floating));
 
       Enable_Clock (This.Converter.all);
       Configure_Unit

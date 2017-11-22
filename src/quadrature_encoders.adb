@@ -91,16 +91,14 @@ package body Quadrature_Encoders is
       Enable_Clock (Encoder_TI2);
       Enable_Clock (Encoder_Timer.all);
 
-      Configuration.Mode := Mode_AF;
-      Configuration.Output_Type := Push_Pull;
-      Configuration.Resistors := Pull_Up;
-      Configuration.Speed := Speed_100MHz;
+      Configuration := (Mode           => Mode_AF,
+                        Resistors      => Pull_Up,
+                        AF             => Encoder_AF,
+                        AF_Output_Type => Push_Pull,
+                        AF_Speed       => Speed_100MHz);
 
       Encoder_TI1.Configure_IO (Configuration);
-      Encoder_TI1.Configure_Alternate_Function (Encoder_AF);
-
       Encoder_TI2.Configure_IO (Configuration);
-      Encoder_TI2.Configure_Alternate_Function (Encoder_AF);
 
       Encoder_TI1.Lock;
       Encoder_TI2.Lock;

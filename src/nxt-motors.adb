@@ -216,10 +216,10 @@ package body NXT.Motors is
    procedure Configure_Polarity_Control (This : GPIO_Point) is
       Configuration : GPIO_Port_Configuration;
    begin
-      Configuration.Mode := Mode_Out;
-      Configuration.Output_Type := Push_Pull;
-      Configuration.Resistors := Pull_Down;
-      Configuration.Speed := Speed_100MHz;
+      Configuration := (Mode        => Mode_Out,
+                        Output_Type => Push_Pull,
+                        Resistors   => Pull_Down,
+                        Speed       => Speed_100MHz);
 
       This.Configure_IO (Configuration);
 
