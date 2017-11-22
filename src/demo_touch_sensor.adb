@@ -44,7 +44,7 @@ procedure Demo_Touch_Sensor is
    --  we are using to connect the sensor to the MCU. The proper choice is
    --  critical to correct behavior. The GPIO pin choice is arbitrary.
 
-   Toggle_Count  : Natural := 0;
+   Toggle_Count : Natural := 0;
    --  The touch sensor is a momentary switch. Once depressed, it will be
    --  released automatically when no longer held down. This variable keeps
    --  the count of these toggle events.
