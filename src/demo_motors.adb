@@ -29,32 +29,41 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
+--  This program demonstrates driving a LEGO NXT motor using an STM32F4
+--  Discovery board and an NXT_Shield motor interface baord. The progam
+--  iteratively increases power by 25% and displays the relative speed using
+--  the four LEDs. Motor #1 is used, arbitrarily chosen from the two made
+--  available by the NXT_Shield board. The user presses (and releases) an
+--  attached NXT touch sensor button to control when the power changes are
+--  applied.
+
 with Last_Chance_Handler;  pragma Unreferenced (Last_Chance_Handler);
 
 with STM32.Device;      use STM32.Device;
 with STM32.Board;       use STM32.Board;
+
 with NXT.Touch_Sensors; use NXT.Touch_Sensors;
 with NXT.Motors;        use NXT.Motors;
 with NXT_Shield;        use NXT_Shield;
 with Discrete_Inputs;
+
 with Ada.Real_Time;     use Ada.Real_Time;
 
 procedure Demo_Motors is
 
-   Button : Touch_Sensor (Pin => PC0'Access, Active => Discrete_Inputs.Low);
+   NXT_Button : Touch_Sensor (Pin => PC0'Access, Active => Discrete_Inputs.Low);
    --  The logic level choice is directly dependent upon the electronic circuit
    --  connecting the sensor to the MCU. The GPIO pin choice is arbitrary.
 
-   Throttle : NXT.Motors.Percentage := 0;
+   Throttle_Setting : NXT.Motors.Power_Level := 0;
    --  Power setting for controlling motor speed
 
-   One_Second : constant Time_Span := Seconds (1);
-   --  Sampling interval for computing encoder counts per second
+   Encoder_Sampling_Interval : constant Time_Span := Seconds (1);
+   --  Sampling interval for computing encoder counts per second. You can
+   --  change this but will then need to compute the rate per second.
 
    --  These subtypes represent categories of rotation rates. The ranges are
-   --  probably dependent on both the battery level and the motor. We are
-   --  arbitrarily using Motor1 for measuring the rotation rates. Either
-   --  motor would suffice.
+   --  dependent on both the battery level and the motor.
    subtype Stopped  is Motor_Encoder_Counts range 0 .. 0;
    subtype Slow     is Motor_Encoder_Counts range Stopped'Last + 1 .. 600;
    subtype Cruising is Motor_Encoder_Counts range Slow'Last + 1 .. 1400;
@@ -81,10 +90,11 @@ procedure Demo_Motors is
    procedure Panic is
    begin
       loop
+         --  When in danger, or in doubt, run in circles, scream and shout.
          All_LEDs_Off;
-         delay until Clock + Milliseconds (500); -- arbitrary
+         delay until Clock + Milliseconds (250); -- arbitrary
          All_LEDs_On;
-         delay until Clock + Milliseconds (500); -- arbitrary
+         delay until Clock + Milliseconds (250); -- arbitrary
       end loop;
    end Panic;
 
@@ -92,7 +102,7 @@ procedure Demo_Motors is
    -- Encoder_Delta --
    -------------------
 
-   function Encoder_Delta (This : Basic_Motor;   Sample_Interval : Time_Span)
+   function Encoder_Delta (This : Basic_Motor; Sample_Interval : Time_Span)
       return Motor_Encoder_Counts
    is
       Start_Sample, End_Sample : Motor_Encoder_Counts;
@@ -117,23 +127,24 @@ procedure Demo_Motors is
    end All_Stop;
 
 begin
-   Button.Initialize_Hardware;
+   NXT_Button.Initialize_Hardware;
    NXT_Shield.Initialize_Hardware;
    STM32.Board.Initialize_LEDs;
    STM32.Board.All_LEDs_Off;
 
    loop
-      Button.Await_Toggle;
+      NXT_Button.Await_Toggle;
 
-      Throttle := (if Throttle = 100 then 0 else Throttle + 25);
+      Throttle_Setting := (if Throttle_Setting = 100 then 0 else Throttle_Setting + 25);
 
-      if Throttle = 0 then
+      if Throttle_Setting = 0 then
          All_Stop (Motor1);
       else
-         Motor1.Engage (Forward, Power_Level => Throttle);
+         Motor1.Engage (Forward, Power => Throttle_Setting);
       end if;
 
-      case Encoder_Delta (Motor1, Sample_Interval => One_Second) is
+      --  note that the following function call delays for the Sample_Interval
+      case Encoder_Delta (Motor1, Sample_Interval => Encoder_Sampling_Interval) is
          when Stopped  => All_LEDs_Off;
          when Slow     => Blue_LED.Set;
          when Cruising => Green_LED.Set;

@@ -40,23 +40,23 @@ package body NXT.Motors is
    --  motors, thereby controlling their direction, as well as whether they
    --  coast to a stop or come to an immediate halt.
 
-   ----------------------
-   -- Current_Throttle --
-   ----------------------
+   --------------
+   -- Throttle --
+   --------------
 
-   function Current_Throttle (This : Basic_Motor) return Percentage is
+   function Throttle (This : Basic_Motor) return Power_Level is
    begin
-      return This.Power.Current_Duty_Cycle;
-   end Current_Throttle;
+      return This.Power_Plant.Current_Duty_Cycle;
+   end Throttle;
 
    ------------
    -- Engage --
    ------------
 
    procedure Engage
-     (This        : in out Basic_Motor;
-      Direction   : Directions;
-      Power_Level : Percentage)
+     (This      : in out Basic_Motor;
+      Direction : Directions;
+      Power     : Power_Level)
    is
    begin
       case Direction is
@@ -67,7 +67,7 @@ package body NXT.Motors is
             Clear (This.Polarity1);
             Set (This.Polarity2);
       end case;
-      This.Power.Set_Duty_Cycle (Power_Level);
+      This.Power_Plant.Set_Duty_Cycle (Power);
    end Engage;
 
    ------------
@@ -75,29 +75,26 @@ package body NXT.Motors is
    ------------
 
    procedure Engage
-     (This        : in out Basic_Motor;
-      Direction   : Directions;
-      Power_Level : Percentage;
-      Counts      : Positive;
-      Brake       : Boolean := True)
+     (This       : in out Basic_Motor;
+      Direction  : Directions;
+      Power      : Power_Level;
+      Target     : Motor_Encoder_Counts;
+      Stop_After : Boolean := True)
    is
-      Target : Motor_Encoder_Counts;
    begin
       case Direction is
          when Forward =>
-            Target := Encoder_Count (This) + Motor_Encoder_Counts (Counts);
-            Engage (This, Forward, Power_Level);
+            Engage (This, Forward, Power);
             loop
                exit when Encoder_Count (This) >= Target;
             end loop;
          when Backward =>
-            Target := Encoder_Count (This) - Motor_Encoder_Counts (Counts);
-            Engage (This, Backward, Power_Level);
+            Engage (This, Backward, Power);
             loop
                exit when Encoder_Count (This) <= Target;
             end loop;
       end case;
-      if Brake then
+      if Stop_After then
          Stop (This);
       end if;
    end Engage;
@@ -110,7 +107,7 @@ package body NXT.Motors is
    begin
       Set (This.Polarity1);
       Set (This.Polarity2);
-      This.Power.Set_Duty_Cycle (100);  -- full power
+      This.Power_Plant.Set_Duty_Cycle (100);  -- full power to lock position
    end Stop;
 
    -----------
@@ -119,33 +116,33 @@ package body NXT.Motors is
 
    procedure Coast (This : in out Basic_Motor) is
    begin
-      This.Power.Set_Duty_Cycle (0);  -- cut power
+      This.Power_Plant.Set_Duty_Cycle (0);  -- do not lock position
    end Coast;
 
-   -----------------------
-   -- Current_Direction --
-   -----------------------
+   ------------------------
+   -- Rotation_Direction --
+   ------------------------
 
-   function Current_Direction (This : Basic_Motor) return Directions is
+   function Rotation_Direction (This : Basic_Motor) return Directions is
    begin
       case Current_Direction (This.Encoder) is
          when Up   => return Forward;
          when Down => return Backward;
       end case;
-   end Current_Direction;
+   end Rotation_Direction;
 
-   --------------------
-   -- Reset_Position --
-   --------------------
+   -------------------------
+   -- Reset_Encoder_Count --
+   -------------------------
 
    procedure Reset_Encoder_Count (This : in out Basic_Motor) is
    begin
       Reset_Count (This.Encoder);
    end Reset_Encoder_Count;
 
-   ----------------------
-   -- Current_Position --
-   ----------------------
+   -------------------
+   -- Encoder_Count --
+   -------------------
 
    function Encoder_Count (This : Basic_Motor) return Motor_Encoder_Counts is
       function As_Motor_Encoder_Counts is new Ada.Unchecked_Conversion
@@ -181,13 +178,13 @@ package body NXT.Motors is
       --  across other PWM generation clients
       Configure_PWM_Timer (PWM_Timer, PWM_Output_Frequency);
 
-      This.Power.Attach_PWM_Channel
+      This.Power_Plant.Attach_PWM_Channel
         (PWM_Timer,
          PWM_Output_Channel,
          PWM_Output,
          PWM_AF);
 
-      This.Power.Enable_Output;
+      This.Power_Plant.Enable_Output;
 
       This.Channel := PWM_Output_Channel;
 

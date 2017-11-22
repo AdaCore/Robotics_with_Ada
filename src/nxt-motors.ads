@@ -45,42 +45,55 @@ package NXT.Motors is
 
    type Basic_Motor is tagged limited private;
 
-   subtype Percentage is Integer range 0 .. 100;
+   subtype Power_Level is Integer range 0 .. 100;
 
-   function Current_Throttle (This : Basic_Motor) return Percentage;
+   function Throttle (This : Basic_Motor) return Power_Level;
 
    type Directions is (Forward, Backward);
 
-   function Current_Direction (This : Basic_Motor) return Directions;
+   function Rotation_Direction (This : Basic_Motor) return Directions;
+
+   type Motor_Encoder_Counts is range -2 ** 31 .. 2 ** 31 - 1;
+
+   Encoder_Counts_Per_Revolution : constant := 720;
+   --  Thus 1/2 degree resolution
 
    procedure Engage
-     (This        : in out Basic_Motor;
-      Direction   : Directions;
-      Power_Level : Percentage);
+     (This      : in out Basic_Motor;
+      Direction : Directions;
+      Power     : Power_Level)
+   with Post => Throttle (This) = Power and
+                Rotation_Direction (This) = Direction;
 
    procedure Engage
-     (This        : in out Basic_Motor;
-      Direction   : Directions;
-      Power_Level : Percentage;
-      Counts      : Positive;
-      Brake       : Boolean := True);
-   --  Does not return until position based on Direction and Counts is reached.
+     (This       : in out Basic_Motor;
+      Direction  : Directions;
+      Power      : Power_Level;
+      Target     : Motor_Encoder_Counts;
+      Stop_After : Boolean := True)
+   with Post =>
+       (case Direction is
+           when Forward  => Encoder_Count (This) >= Target,
+           when Backward => Encoder_Count (This) <= Target)
+       and
+       Rotation_Direction (This) = Direction
+       and
+       (if Stop_After
+        then Throttle (This) = 0
+        else Throttle (This) = Power);
 
-   procedure Stop (This : in out Basic_Motor);
-   --  full stop immediately
+   procedure Stop (This : in out Basic_Motor) with
+     Post => Throttle (This) = 100;
+   --  Full stop immediately and actively lock motor position.
 
-   procedure Coast (This : in out Basic_Motor);
-   --  gradual stop
+   procedure Coast (This : in out Basic_Motor) with
+     Post => Throttle (This) = 0;
+   --  Gradual stop without locking motor position.
 
    procedure Reset_Encoder_Count (This : in out Basic_Motor) with
      Post => Encoder_Count (This) = 0;
 
-   type Motor_Encoder_Counts is range -2 ** 31 .. 2 ** 31 - 1;
-
    function Encoder_Count (This : Basic_Motor) return Motor_Encoder_Counts;
-
-   Encoder_Counts_Per_Revolution : constant := 720;
-   --  thus 1/2 degree resolution
 
    procedure Initialize
      (This                 : in out Basic_Motor;
@@ -102,16 +115,16 @@ package NXT.Motors is
        Pre  => Has_32bit_Counter (Encoder_Timer.all) and
                Bidirectional (Encoder_Timer.all),
        Post => Encoder_Count (This) = 0 and
-               Current_Throttle (This) = 0;
+               Throttle (This) = 0;
 
 private
 
    type Basic_Motor is tagged limited record
-      Encoder   : Rotary_Encoder;
-      Power     : PWM_Modulator;
-      Channel   : Timer_Channel;
-      Polarity1 : GPIO_Point;
-      Polarity2 : GPIO_Point;
+      Encoder     : Rotary_Encoder;
+      Power_Plant : PWM_Modulator;
+      Channel     : Timer_Channel;  -- for PWM modulator
+      Polarity1   : GPIO_Point;
+      Polarity2   : GPIO_Point;
    end record;
 
 end NXT.Motors;
