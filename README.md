@@ -5,10 +5,6 @@ This program demonstrates interfacing to Lego NXT Mindstorms sensors and
 effectors using Ada and low-cost ARM evaluation boards instead of the 
 NXT Mindstorms Brick. 
 
-Note: clone recursively, because a local copy of the Ada Driver Library
-is expected, located at the project root level (as referenced in the
-project gpr file).
-
 For the touch sensor interfacing demonstration:
 
    The program displays output to the LCD screen of an STM32F429I Discovery
@@ -23,4 +19,7 @@ For the touch sensor interfacing demonstration:
 
    The discrete input is to be connected from the external circuit to PB4.
 
+For the analog sensor interfacing demonstrations:
 
+   You must have a pull-up resistor for the analog input pin connected to the
+   +5V power pin.
