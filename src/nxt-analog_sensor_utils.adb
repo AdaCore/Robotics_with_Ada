@@ -69,7 +69,6 @@ package body NXT.Analog_Sensor_Utils is
    begin
       case Status is
          when Valid_Reading   => return "Valid_Reading";
-         when Invalid_Scale   => return "Invalid_Scale";
          when Reading_Failure => return "Reading_Failure";
       end case;
    end Image;

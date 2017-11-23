@@ -68,13 +68,9 @@ package body NXT.Analog_Sensors is
       Scaled     : Integer;
       Successful : Boolean;
    begin
-      Reading := 0;
-      if This.Low = This.High then
-         Status := Invalid_Scale;
-         return;
-      end if;
       Get_Raw_Reading (NXT_Analog_Sensor'Class (This), Raw, Successful);
       if not Successful then
+         Reading := 0;
          Status := Reading_Failure;
          return;
       end if;
@@ -109,42 +105,25 @@ package body NXT.Analog_Sensors is
    function Enabled (This : NXT_Analog_Sensor) return Boolean is
       (STM32.ADC.Enabled (This.Converter.all));
 
-   ----------------------------
-   -- Set_Calibrated_Maximum --
-   ----------------------------
+   ---------------------
+   -- Set_Calibration --
+   ---------------------
 
-   procedure Set_Calibrated_Maximum
-     (This  : in out NXT_Analog_Sensor;
-      Value : Varying_Directly)
+   procedure Set_Calibration
+     (This     : in out NXT_Analog_Sensor;
+      Least    : Varying_Directly;
+      Greatest : Varying_Directly)
    is
    begin
-      This.High := Value;
-   end Set_Calibrated_Maximum;
+      This.Low := Least;
+      This.High := Greatest;
+   end Set_Calibration;
 
-   ----------------------------
-   -- Set_Calibrated_Minimum --
-   ----------------------------
+   -----------------
+   -- Calibration --
+   -----------------
 
-   procedure Set_Calibrated_Minimum
-     (This  : in out NXT_Analog_Sensor;
-      Value : Varying_Directly)
-   is
-   begin
-      This.Low := Value;
-   end Set_Calibrated_Minimum;
-
-   ------------------------
-   -- Calibrated_Maximum --
-   ------------------------
-
-   function Calibrated_Maximum (This : NXT_Analog_Sensor) return Varying_Directly is
-     (This.High);
-
-   ------------------------
-   -- Calibrated_Minimum --
-   ------------------------
-
-   function Calibrated_Minimum (This : NXT_Analog_Sensor) return Varying_Directly is
-     (This.Low);
+   function Calibration (This : NXT_Analog_Sensor) return Sensor_Calibration is
+     (This.Low, This.High);
 
 end NXT.Analog_Sensors;

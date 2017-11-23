@@ -89,12 +89,9 @@ package NXT.Analog_Sensors is
 
    subtype Intensity is Integer range 0 .. 100;
 
-   type Reading_Status is (Valid_Reading, Invalid_Scale, Reading_Failure);
+   type Reading_Status is (Valid_Reading, Reading_Failure);
    --  Valid_Reading indicates successful acquisition and processing of the
    --  sensor value into a scaled Intensity percentage.
-   --
-   --  Invalid_Scale corresponds to the case in which, for the sensor This in a
-   --  call to Get_Scaled_Reading, This.Low = This.High.
    --
    --  Reading_Failure indicates a failure to get a raw value from the ADC
    --  driven by the sensor, via a call to Get_Raw_Reading.
@@ -152,41 +149,31 @@ package NXT.Analog_Sensors is
    --  meant to be those that vary directly with the sensed input, e.g., for
    --  the light sensor, 0 corresponds to darkest incoming light expected,
    --  whereas the max ADC resoluton value corresponds to the brightest
-   --  incoming light expected. This intent is not enforced, so the user should
-   --  ensure that the intent is honored. Note the utility function below.
-
-   procedure Set_Calibrated_Maximum
-     (This  : in out NXT_Analog_Sensor;
-      Value : Varying_Directly);
-   --  Set the raw value corresponding to the highest sensed inputs from the
-   --  ADC, e.g., brightest sensed light. The specified value is one that
-   --  varies inversely with the sensed input, as for those values directly
-   --  returned from the sensor. The input value will be translated by the
-   --  routine into one that varies directly.
-
-   procedure Set_Calibrated_Minimum
-     (This  : in out NXT_Analog_Sensor;
-      Value : Varying_Directly);
-   --  Set the raw value corresponding to the lowest/least sensed inputs from
-   --  the ADC, e.g., darkest sensed light. The specified value is one that
-   --  varies inversely with the sensed input, as for those values directly
-   --  returned from the sensor. The input value will be translated by the
-   --  routine into one that varies directly.
-
-   function Calibrated_Maximum (This : NXT_Analog_Sensor) return Varying_Directly;
-   --  Returns the aw value corresponding to the highest sensed inputs from the
-   --  ADC, e.g., brightest sensed light. The values vary inversely with the
-   --  incoming sensed values.
+   --  incoming light expected. This intent is not enforced, so the user
+   --  should ensure that the intent is honored.
    --
-   --  NB: The returned value can be passed to Set_Raw_High_Bound without any
-   --  changes by the client.
+   --  Note the utility function As_Varying_Directly declared below.
 
-   function Calibrated_Minimum (This : NXT_Analog_Sensor) return Varying_Directly;
-   --  Returns the raw value corresponding to least/lowest sensed inputs from
-   --  the ADC, e.g., dimmest sensed light. The values vary inversely with the
-   --  incoming sensed values.
+   type Sensor_Calibration is record
+      Least, Greatest : Varying_Directly;
+   end record;
+
+   procedure Set_Calibration
+     (This     : in out NXT_Analog_Sensor;
+      Least    : Varying_Directly;
+      Greatest : Varying_Directly)
+   with Pre => Least < Greatest;
+   --  Set the values corresponding to the least and greatest sensed input
+   --  values acquired from this ADC, e.g., darkest and brightest sensed light.
+   --  The specified values vary directly with the sensed input, as opposed to
+   --  those values read immediately from the sensor.
+
+   function Calibration (This : NXT_Analog_Sensor) return Sensor_Calibration;
+   --  Returns the values corresponding to the least and greatestest sensed
+   --  inputs from the ADC. The values vary directly with the incoming sensed
+   --  values.
    --
-   --  NB: The returned value can be passed to Set_Raw_Low_Bound without any
+   --  NB: The returned value can be passed to Set_Calibration without any
    --  changes by the client.
 
    --  Utility functions  ------------------------------------------------------
@@ -195,18 +182,13 @@ package NXT.Analog_Sensors is
    --  Returns the maximum value the ADC unit can provide at the device's
    --  selected resolution.
 
+   function As_Varying_Directly (Inverse_Value : Integer) return Integer with Inline;
    --  The raw values coming from the sensor vary inversely with the sensed
    --  input, i.e., "higher" inputs such as brighter light correspond to
-   --  numerically lower raw values. The routine that returns a percentage,
-   --  however, returns values that vary directly with the sensed input, e.g.,
-   --  for the light sensor, 0% corresponds to darkest incoming light expected,
-   --  whereas 100% corresponds to the brightest incoming light expected.
-
-   function As_Varying_Directly (Inverse_Value : Integer) return Integer with Inline;
-   --  This function translates the given value, presumably that varies
-   --  inversely with the sensed input, into a value that varies directly
-   --  with the sensed input. This can be useful for passing values to the
-   --  Set_Calibrated_* routines above.
+   --  numerically lower raw values. This function translates the given value,
+   --  presumably one that varies inversely with the sensed input, into a value
+   --  that varies directly with the sensed input. This can be useful for
+   --  passing values to the Set_Calibration routine above, for example.
 
 private
 
@@ -227,6 +209,7 @@ private
       High : Natural := Max_For_Resolution;
       Low  : Natural := 0;
    end record;
+   --  Low and High are in terms of values that vary directly with sensed input
 
    function Mapped is new Math_Utilities.Range_To_Domain_Mapping (Integer);
 

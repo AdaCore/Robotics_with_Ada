@@ -171,8 +171,7 @@ begin
    --  Manual calibration. These values were determined empirically and worked
    --  well with the spoken voice coming out of a desktop speaker, but of
    --  course you may need to change them for your environment.
-   Sensor.Set_Calibrated_Minimum (0);
-   Sensor.Set_Calibrated_Maximum (900);
+   Sensor.Set_Calibration (Least => 0, Greatest => 900);
 
    loop
       Sensor.Get_Scaled_Reading (Reading, Status);

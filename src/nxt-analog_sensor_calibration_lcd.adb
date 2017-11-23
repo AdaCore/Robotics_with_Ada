@@ -93,9 +93,7 @@ package body NXT.Analog_Sensor_Calibration_LCD is
          return;
       end if;
 
-      --  The Set_* routines expect inputs to be varying directly
-      Set_Calibrated_Minimum (Sensor, Low_Bound);
-      Set_Calibrated_Maximum (Sensor, High_Bound);
+      Sensor.Set_Calibration (Least => Low_Bound, Greatest => High_Bound);
 
       Put_Line ("Blue button...");
       Await_Button_Toggle;
@@ -108,13 +106,12 @@ package body NXT.Analog_Sensor_Calibration_LCD is
    procedure Await_Button_Toggle is
       use STM32.Board;
    begin
-      while not User_Button_Point.Set loop
-         null;
+      loop
+         exit when User_Button_Point.Set;
       end loop;
-      while User_Button_Point.Set loop
-         null;
+      loop
+         exit when not User_Button_Point.Set;
       end loop;
    end Await_Button_Toggle;
-
 
 end NXT.Analog_Sensor_Calibration_LCD;
