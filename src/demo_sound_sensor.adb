@@ -142,6 +142,7 @@ procedure Demo_Sound_Sensor is
 
    procedure Panic is
    begin
+      Initialize_LEDs;
       --  "When in danger, or in doubt, run in circles, scream and shout."
       loop
          All_LEDs_Off;
