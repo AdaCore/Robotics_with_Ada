@@ -62,13 +62,13 @@ package body NXT.Analog_Sensors.DMA is
       Initialize_ADC (This.Converter, This.Input_Channel);
 
       Enable (This.Converter.all);
-      Start_Conversion (This.Converter.all);
       Start_Transfer
         (This.Controller.all,
          This.Stream,
          Source      => Data_Register_Address (This.Converter.all),
          Destination => This.Raw_Value'Address,
          Data_Count  => 1);  -- ie, 1 word
+      Start_Conversion (This.Converter.all);
    end Initialize;
 
    ---------------------
@@ -112,8 +112,8 @@ package body NXT.Analog_Sensors.DMA is
 
       Config.Channel                      := Channel;
       Config.Direction                    := Peripheral_To_Memory;
-      Config.Memory_Data_Format           := Words;
-      Config.Peripheral_Data_Format       := Words;
+      Config.Memory_Data_Format           := HalfWords;
+      Config.Peripheral_Data_Format       := HalfWords;
       Config.Increment_Peripheral_Address := False;
       Config.Increment_Memory_Address     := False;
       Config.Operation_Mode               := Circular_Mode;
