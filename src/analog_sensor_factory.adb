@@ -2,7 +2,7 @@
 --                                                                          --
 --                      Copyright (C) 2017, AdaCore                         --
 --                                                                          --
---  Redistribution and use inC source and binary forms, with or without      --
+--  Redistribution and use in source and binary forms, with or without      --
 --  modification, are permitted provided that the following conditions are  --
 --  met:                                                                    --
 --     1. Redistributions of source code must retain the above copyright    --
@@ -30,54 +30,55 @@
 ------------------------------------------------------------------------------
 
 with STM32.Device; use STM32.Device;
+with STM32.ADC;    use STM32.ADC;
+with STM32.GPIO;   use STM32.GPIO;
+with STM32.DMA;    use STM32.DMA;
 
-package body NXT.Light_Sensors is
+with NXT.Analog.DMA.Light.Constructors; use NXT.Analog.DMA.Light.Constructors;
+with NXT.Analog.DMA.Sound.Constructors; use NXT.Analog.DMA.Sound.Constructors;
+
+use  NXT.Analog.DMA.Light;
+use  NXT.Analog.DMA.Sound;
+
+package body Analog_Sensor_Factory is
+
+   Selected_ADC_Unit      : Analog_To_Digital_Converter renames ADC_1;
+   Selected_Input_Channel : constant Analog_Input_Channel := 5;
+   Matching_Input_Pin     : GPIO_Point renames PA5;  -- must match the channel!
+
+   Required_DMA_Unit      : DMA_Controller renames DMA_2;
+   --  On the STM32F4 devices, only DMA_2 can attach to an ADC
+   Matching_Stream        : constant DMA_Stream_Selector := Stream_0;
+   --  maps to ADC_1 on DMA_2 (Stream_4 is the only alternative)
+
+   Digital_Line_0         : constant GPIO_Point := PC11;    -- arbitrary
+   Digital_Line_1         : constant GPIO_Point := PC12;   -- arbitrary
 
    ----------------
-   -- Initialize --
+   -- New_Sensor --
    ----------------
 
-   overriding
-   procedure Initialize
-     (This : in out NXT_Light_Sensor)
-   is
+   function New_Sensor (Kind : Known_Analog_Sensors) return NXT_Analog_Sensor'Class is
    begin
-      Initialize (NXT_Analog_Sensor_DMA (This));
+      case Kind is
+         when Light =>
+            return Result : NXT_Analog_Sensor'Class := New_Light_Sensor
+              (Converter      => Selected_ADC_Unit'Access,
+               Input_Channel  => Selected_Input_Channel,
+               Input_Pin      => Matching_Input_Pin,
+               Controller     => Required_DMA_Unit'Access,
+               Stream         => Matching_Stream,
+               Floodlight_Pin => Digital_Line_0);
+         when Sound =>
+            return Result : NXT_Analog_Sensor'Class := New_Sound_Sensor
+              (Converter      => Selected_ADC_Unit'Access,
+               Input_Channel  => Selected_Input_Channel,
+               Input_Pin      => Matching_Input_Pin,
+               Controller     => Required_DMA_Unit'Access,
+               Stream         => Matching_Stream,
+               Digital_0      => Digital_Line_0,
+               Digital_1      => Digital_Line_1);
+      end case;
+   end New_Sensor;
 
-      Enable_Clock (This.Floodlight_Pin.all);
-      This.Floodlight_Pin.Configure_IO
-        ((Mode        => Mode_Out,
-          Resistors   => Pull_Down,
-          Speed       => Speed_Medium,
-          Output_Type => Push_Pull));
-      This.Floodlight_Pin.Clear;
-   end Initialize;
-
-   -------------------------
-   -- Enable_Output_Light --
-   -------------------------
-
-   procedure Enable_Floodlight (This : in out NXT_Light_Sensor) is
-   begin
-      This.Floodlight_Pin.Set;
-      This.Floodlight_Enabled := True;
-   end Enable_Floodlight;
-
-   --------------------------
-   -- Disable_Output_Light --
-   --------------------------
-
-   procedure Disable_Floodlight (This : in out NXT_Light_Sensor) is
-   begin
-      This.Floodlight_Pin.Clear;
-      This.Floodlight_Enabled := False;
-   end Disable_Floodlight;
-
-   ------------------------
-   -- Floodlight_Enabled --
-   ------------------------
-
-   function Floodlight_Enabled (This : NXT_Light_Sensor) return Boolean is
-      (This.Floodlight_Enabled);
-
-end NXT.Light_Sensors;
+end Analog_Sensor_Factory;

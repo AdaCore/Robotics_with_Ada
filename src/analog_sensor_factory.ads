@@ -29,36 +29,16 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
---  This package provides the declarations for the peripherals for the NXT
---  sound sensor demo in the "demo_sound_sensor.adb" file.
+--  This package provides a factory function to create sensors in the class of
+--  all analog sensors. The specific kind of sensor created is controlled by a
+--  parameter.
 
-with STM32.Device; use STM32.Device;
+with NXT.Analog; use NXT.Analog;
 
-with HAL;          use HAL;
-with STM32.PWM;    use STM32.PWM;
-with STM32.DMA;    use STM32.DMA;
+package Analog_Sensor_Factory is
 
-with NXT.Sound_Sensors; use NXT.Sound_Sensors;
+   type Known_Analog_Sensors is (Light, Sound);
 
-package Sound_Demo_Peripherals is
+   function New_Sensor (Kind : Known_Analog_Sensors) return NXT_Analog_Sensor'Class;
 
-   Sensor : NXT_Sound_Sensor
-     (Converter      => ADC_1'Access,
-      Input_Channel  => 5,
-      Input_Pin      => PA5'Access,          -- must match input channel
-      Controller     => DMA_2'Access,        -- only DMA2 can map to an ADC
-      Stream         => STM32.DMA.Stream_0,  -- maps to ADC1 on DMA2
-      Digital_0      => PC11'Access,         -- arbitrary
-      Digital_1      => PC12'Access);        -- arbitrary
-   --  See the mapping of channels to GPIO pins at the top of the ADC driver
-   --  package. Also see your board's User Manual for determining which GPIO
-   --  pins are available. For example, on the F429 and F4 Discovery boards,
-   --  GPIO pin PA5 maps to channel 5 of both ADC #1 and #2. The ADC unit
-   --  selection itself is arbitrary, as long as the input channel, the
-   --  GPIO pin, and the DMA stream map to it.
-
-   LED_Power_Control : PWM_Modulator;
-   --  This is the power generator driving the LED. The LED brightness will
-   --  vary with the sound intensity detected by the sound sensor.
-
-end Sound_Demo_Peripherals;
+end Analog_Sensor_Factory;

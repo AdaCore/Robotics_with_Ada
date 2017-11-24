@@ -48,21 +48,35 @@
 
 with Last_Chance_Handler;  pragma Unreferenced (Last_Chance_Handler);
 
+with Panic;
+
 with STM32.Board;  use STM32.Board;
 with STM32.Device; use STM32.Device;
 
-with HAL;          use HAL;
-with STM32.PWM;    use STM32.PWM;
+with HAL;       use HAL;
+with STM32.PWM; use STM32.PWM;
 with STM32.ADC;
 with STM32.Timers;
-use STM32;
 
-with NXT.Analog_Sensors;     use NXT.Analog_Sensors;
-with NXT.Sound_Sensors;      use NXT.Sound_Sensors;
-with Sound_Demo_Peripherals; use Sound_Demo_Peripherals;
-with Ada.Real_Time;          use Ada.Real_Time;
+with NXT.Analog;            use NXT.Analog;
+with Analog_Sensor_Factory; use Analog_Sensor_Factory;
+
+with Ada.Real_Time; use Ada.Real_Time;
 
 procedure Demo_Sound_Sensor is
+
+   Sensor : NXT_Analog_Sensor'Class := Analog_Sensor_Factory.New_Sensor (Kind => Sound);
+   --  This demo always uses a sound sensor.
+
+   LED_Power_Control : PWM_Modulator;
+   --  This is the power generator driving the LED. The LED brightness will
+   --  vary with the sound intensity detected by the sound sensor.
+
+   Next_Release : Time := Clock;
+   Period       : constant Time_Span := Milliseconds (100);  -- arbitrary
+   Power_Level  : STM32.PWM.Percentage;
+   Reading      : Intensity;
+   Successful   : Boolean;
 
    procedure Set_Up_ADC_General_Settings;
    --  Does ADC general setup for all ADC units.
@@ -72,9 +86,6 @@ procedure Demo_Sound_Sensor is
    --  connected via the timer to those LEDs. (Only one LED is actually
    --  driven.)
 
-   procedure Panic with No_Return;
-   --  Flash the LEDs to indicate disaster, forever.
-
    ---------------------------------
    -- Set_Up_ADC_General_Settings --
    ---------------------------------
@@ -82,7 +93,7 @@ procedure Demo_Sound_Sensor is
    procedure Set_Up_ADC_General_Settings is
       use STM32.ADC;
    begin
-      Reset_All_ADC_Units;
+      STM32.Device.Reset_All_ADC_Units;
       Configure_Common_Properties
         (Mode           => Independent,
          Prescalar      => PCLK2_Div_2,
@@ -99,8 +110,8 @@ procedure Demo_Sound_Sensor is
 
       Selected_Timer : Timer renames Timer_4;
       --  NOT arbitrary! We drive the on-board LEDs that are tied to the
-      --  channels of Timer_4 on some boards. Not all boards have this
-      --  association. If you use a difference board, select a GPIO point
+      --  channels of Timer_4 on the F4 Discovery boards. Not all boards have
+      --  this association. If you use a difference board, select a GPIO point
       --  connected to your selected timer and drive that instead.
 
       Timer_AF : constant STM32.GPIO_Alternate_Function := GPIO_AF_TIM4_2;
@@ -136,38 +147,10 @@ procedure Demo_Sound_Sensor is
       LED_Power_Control.Enable_Output;
    end Set_Up_PWM;
 
-   -----------
-   -- Panic --
-   -----------
-
-   procedure Panic is
-   begin
-      Initialize_LEDs;
-      --  "When in danger, or in doubt, run in circles, scream and shout."
-      loop
-         All_LEDs_Off;
-         delay until Clock + Milliseconds (250); -- arbitrary
-         All_LEDs_On;
-         delay until Clock + Milliseconds (250); -- arbitrary
-      end loop;
-   end Panic;
-
-   --  The values controlling the periodic execution. The period is arbitrary
-   --  but should be quick enough for the LED brightness to be responsive to
-   --  incoming sounds.
-
-   Next_Release : Time := Clock;
-   Period       : constant Time_Span := Milliseconds (100);  -- arbitrary
-
-   Power_Level : PWM.Percentage;
-   Reading     : Intensity;
-   Status      : Reading_Status;
-
 begin
    Set_Up_PWM;
    Set_Up_ADC_General_Settings;
    Sensor.Initialize;
-   --  See the note in the header about the required resistor.
 
    --  Manual calibration. These values were determined empirically and worked
    --  well with the spoken voice coming out of a desktop speaker, but of
@@ -175,11 +158,11 @@ begin
    Sensor.Set_Calibration (Least => 0, Greatest => 900);
 
    loop
-      Sensor.Get_Scaled_Reading (Reading, Status);
-      if Status /= Valid_Reading then
+      Sensor.Get_Intensity (Reading, Successful);
+      if not Successful then
          Panic;
       else
-         Power_Level := PWM.Percentage (Reading);
+         Power_Level := STM32.PWM.Percentage (Reading);
       end if;
       LED_Power_Control.Set_Duty_Cycle (Power_Level);
 

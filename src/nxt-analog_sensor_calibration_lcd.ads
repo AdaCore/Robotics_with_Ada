@@ -38,8 +38,8 @@
 --  STM32F4 Disco board used for some demos has the blue user button disabled
 --  by removing a solder bridge.
 
-with NXT.Analog_Sensors; use NXT.Analog_Sensors;
-with Ada.Real_Time;      use Ada.Real_Time;
+with NXT.Analog;    use NXT.Analog;
+with Ada.Real_Time; use Ada.Real_Time;
 
 package NXT.Analog_Sensor_Calibration_LCD is
 

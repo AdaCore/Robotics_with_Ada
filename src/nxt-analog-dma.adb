@@ -32,7 +32,7 @@
 with STM32.Device.Mapping_Requests;
 use STM32.Device;
 
-package body NXT.Analog_Sensors.DMA is
+package body NXT.Analog.DMA is
 
    procedure Initialize_DMA
      (Controller : not null access DMA_Controller;
@@ -147,4 +147,4 @@ package body NXT.Analog_Sensors.DMA is
       Enable_DMA_After_Last_Transfer (Unit.all);
    end Initialize_ADC;
 
-end NXT.Analog_Sensors.DMA;
+end NXT.Analog.DMA;

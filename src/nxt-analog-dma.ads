@@ -29,76 +29,38 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
---  This package provides a concrete subclass interface to the NXT light
---  sensor. This subclass uses DMA to acquire the raw sensor readings.
+--  This package provides an abstract subclass for the NXT analog sensors.
+--  This subclass uses DMA to acquire the raw sensor readings.
 
 --  Note that you must have an external pull-up resistor tied to +5V on the
 --  analog input pin. A 10K resistor works well.
 
---  In addition to the sensor-specific call to procedure Initialize, clients
---  are responsible for making the following calls to the ADC routines. They
---  are not called internally by Initialize because the functionality and
---  settings are independent of the specific ADC unit used for the sensor,
---  i.e., we don't want to hard-code them globally for one usage. The arguments
---  to procedure Configure_Common_Properties indicated below work with the NXT
---  sound and light sensors
---
---    STM32.ADC.Reset_All_ADC_Units;
---
---    STM32.ADC.Configure_Common_Properties
---      (Mode           => Independent,
---       Prescalar      => PCLK2_Div_2,
---       DMA_Mode       => Disabled,
---       Sampling_Delay => Sampling_Delay_5_Cycles);
+with STM32.DMA; use STM32.DMA;
 
-with STM32.ADC;  use STM32.ADC;
-with STM32.GPIO; use STM32.GPIO;
-with STM32.DMA;  use STM32.DMA;
-with HAL;        use HAL;
+package NXT.Analog.DMA is
 
-with NXT.Analog_Sensors.DMA; use NXT.Analog_Sensors.DMA;
-
-package NXT.Light_Sensors is
-
-   type NXT_Light_Sensor
-     (Converter      : not null access Analog_To_Digital_Converter;
-      Input_Channel  : Analog_Input_Channel;
-      Input_Pin      : not null access GPIO_Point;
-      Controller     : not null access DMA_Controller;
-      Stream         : DMA_Stream_Selector;
-      Floodlight_Pin : not null access GPIO_Point)
-   is new NXT_Analog_Sensor_DMA
-   with private;
+   type NXT_Analog_Sensor_DMA is abstract new NXT_Analog_Sensor with private;
+   --  Note that, on the STM32F4xxx series, only DMA2 can attach to an ADC, per
+   --  Table 43 of the RM for that series. We include the specification of the
+   --  DMA Controller in this type declaration for the sake of reusing this
+   --  code on a different device family.
 
    overriding
-   procedure Initialize (This : in out NXT_Light_Sensor) with
-     Post => not Floodlight_Enabled (This);
+   procedure Initialize (This : in out NXT_Analog_Sensor_DMA) with
+     Post => Enabled (This);
 
-   procedure Enable_Floodlight (This : in out NXT_Light_Sensor) with
-     Post => Floodlight_Enabled (This);
-
-   procedure Disable_Floodlight (This : in out NXT_Light_Sensor) with
-     Post => not Floodlight_Enabled (This);
-
-   function Floodlight_Enabled (This : NXT_Light_Sensor) return Boolean;
+   overriding
+   procedure Get_Raw_Reading
+     (This       : in out NXT_Analog_Sensor_DMA;
+      Reading    : out Natural;
+      Successful : out Boolean);
 
 private
 
-   type NXT_Light_Sensor
-     (Converter      : not null access Analog_To_Digital_Converter;
-      Input_Channel  : Analog_Input_Channel;
-      Input_Pin      : not null access GPIO_Point;
-      Controller     : not null access DMA_Controller;
-      Stream         : DMA_Stream_Selector;
-      Floodlight_Pin : not null access GPIO_Point)
-   is new NXT_Analog_Sensor_DMA
-     (Converter,
-      Input_Channel,
-      Input_Pin,
-      Controller,
-      Stream)
-   with record
-      Floodlight_Enabled : Boolean := False;
+   type NXT_Analog_Sensor_DMA is new NXT_Analog_Sensor with record
+      Controller : access DMA_Controller;
+      Stream     : DMA_Stream_Selector;
+      Raw_Value  : Integer := 0 with Atomic;
    end record;
 
-end NXT.Light_Sensors;
+end NXT.Analog.DMA;

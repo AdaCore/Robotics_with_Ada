@@ -29,49 +29,49 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
-with STM32.Device; use STM32.Device;
+--  This package provides a concrete subclass interface to the NXT light
+--  sensor. This subclass uses DMA to acquire the raw sensor readings.
 
-package body NXT.Analog_Sensors.Polling is
+--  Note that you must have an external pull-up resistor tied to +5V on the
+--  analog input pin. A 10K resistor works well.
 
-   ----------------
-   -- Initialize --
-   ----------------
+--  In addition to the sensor-specific call to procedure Initialize, clients
+--  are responsible for making the following calls to the ADC routines. They
+--  are not called internally by Initialize because the functionality and
+--  settings are independent of the specific ADC unit used for the sensor,
+--  i.e., we don't want to hard-code them globally for one usage. The arguments
+--  to procedure Configure_Common_Properties indicated below work with the NXT
+--  sound and light sensors
+--
+--    STM32.ADC.Reset_All_ADC_Units;
+--
+--    STM32.ADC.Configure_Common_Properties
+--      (Mode           => Independent,
+--       Prescalar      => PCLK2_Div_2,
+--       DMA_Mode       => Disabled,
+--       Sampling_Delay => Sampling_Delay_5_Cycles);
 
-   overriding
-   procedure Initialize
-     (This : in out NXT_Analog_Sensor_Polled)
-   is
-   begin
-      Initialize (NXT_Analog_Sensor (This));
+package NXT.Analog.DMA.Light is
 
-      Configure_Regular_Conversions
-        (This.Converter.all,
-         Continuous  => False,
-         Trigger     => Software_Triggered,
-         Enable_EOC  => True,
-         Conversions => Regular_Conversion (This.Input_Channel));
-
-      Enable (This.Converter.all);
-   end Initialize;
-
-   ---------------------
-   -- Get_Raw_Reading --
-   ---------------------
+   type NXT_Light_Sensor is new NXT_Analog_Sensor_DMA with private;
 
    overriding
-   procedure Get_Raw_Reading
-     (This       : in out NXT_Analog_Sensor_Polled;
-      Reading    : out Natural;
-      Successful : out Boolean)
-   is
-   begin
-      Start_Conversion (This.Converter.all);
-      Poll_For_Status (This.Converter.all, Regular_Channel_Conversion_Complete, Successful);
-      if not Successful then
-         Reading := 0;
-      else
-         Reading := Integer (Conversion_Value (This.Converter.all));
-      end if;
-   end Get_Raw_Reading;
+   procedure Initialize (This : in out NXT_Light_Sensor) with
+     Post => not Floodlight_Enabled (This);
 
-end NXT.Analog_Sensors.Polling;
+   procedure Enable_Floodlight (This : in out NXT_Light_Sensor) with
+     Post => Floodlight_Enabled (This);
+
+   procedure Disable_Floodlight (This : in out NXT_Light_Sensor) with
+     Post => not Floodlight_Enabled (This);
+
+   function Floodlight_Enabled (This : NXT_Light_Sensor) return Boolean;
+
+private
+
+   type NXT_Light_Sensor is new NXT_Analog_Sensor_DMA with record
+      Floodlight_Pin     : GPIO_Point;
+      Floodlight_Enabled : Boolean := False;
+   end record;
+
+end NXT.Analog.DMA.Light;

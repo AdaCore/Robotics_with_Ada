@@ -32,13 +32,10 @@
 --  This package provides some utility routines for working with NXT analog
 --  sensors.
 
-with NXT.Analog_Sensors; use NXT.Analog_Sensors;
-with Ada.Real_Time;      use Ada.Real_Time;
+with NXT.Analog;    use NXT.Analog;
+with Ada.Real_Time; use Ada.Real_Time;
 
 package NXT.Analog_Sensor_Utils is
-
-   function Image (Status : Reading_Status) return String;
-   --  A convenience function that returns a String value equal to Status'Image
 
    procedure Get_Average_Reading
      (Sensor     : in out NXT_Analog_Sensor'Class;

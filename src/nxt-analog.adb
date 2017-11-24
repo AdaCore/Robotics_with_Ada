@@ -31,7 +31,7 @@
 
 with STM32.Device; use STM32.Device;
 
-package body NXT.Analog_Sensors is
+package body NXT.Analog is
 
    ----------------
    -- Initialize --
@@ -41,7 +41,7 @@ package body NXT.Analog_Sensors is
      (This : in out NXT_Analog_Sensor)
    is
    begin
-      Enable_Clock (This.Input_Pin.all);
+      Enable_Clock (This.Input_Pin);
       This.Input_Pin.Configure_IO ((Mode_Analog, Resistors => Floating));
 
       Enable_Clock (This.Converter.all);
@@ -55,30 +55,27 @@ package body NXT.Analog_Sensors is
       --  not
    end Initialize;
 
-   ------------------------
-   -- Get_Scaled_Reading --
-   ------------------------
+   -------------------
+   -- Get_Intensity --
+   -------------------
 
-   procedure Get_Scaled_Reading
-     (This    : in out NXT_Analog_Sensor;
-      Reading : out Intensity;
-      Status  : out Reading_Status)
+   procedure Get_Intensity
+     (This       : in out NXT_Analog_Sensor;
+      Reading    : out Intensity;
+      Successful : out Boolean)
    is
-      Raw        : Integer;
-      Scaled     : Integer;
-      Successful : Boolean;
+      Raw    : Integer;
+      Scaled : Integer;
    begin
       Get_Raw_Reading (NXT_Analog_Sensor'Class (This), Raw, Successful);
       if not Successful then
          Reading := 0;
-         Status := Reading_Failure;
          return;
       end if;
       Raw := As_Varying_Directly (Raw);
       Scaled := Mapped (Raw, This.Low, This.High, Intensity'First, Intensity'Last);
       Reading := Constrained (Scaled, Intensity'First, Intensity'Last);
-      Status := Valid_Reading;
-   end Get_Scaled_Reading;
+   end Get_Intensity;
 
    ------------
    -- Enable --
@@ -126,4 +123,4 @@ package body NXT.Analog_Sensors is
    function Calibration (This : NXT_Analog_Sensor) return Sensor_Calibration is
      (This.Low, This.High);
 
-end NXT.Analog_Sensors;
+end NXT.Analog;

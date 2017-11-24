@@ -29,36 +29,32 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
-package body NXT.Analog_Sensor_Utils is
+--  This package provides an abstract subclass for the NXT analog sensors.
+--  This subclass uses polling to acquire the raw sensor readings.
 
-   -------------------------
-   -- Get_Average_Reading --
-   -------------------------
+--  Note that you must have an external pull-up resistor tied to +5V on the
+--  analog input pin. A 10K resistor works well.
 
-   procedure Get_Average_Reading
-     (Sensor     : in out NXT_Analog_Sensor'Class;
-      Interval   : Time_Span;
-      Result     : out Integer;
-      Successful : out Boolean)
-   is
-      Deadline : constant Time := Clock + Interval;
-      Reading  : Integer;
-      Total    : Integer := 0;
-      Count    : Integer := 0;
-   begin
-      while Clock <= Deadline loop
-         Get_Raw_Reading (Sensor, Reading, Successful);
-         if not Successful then
-            Result := 0;
-            return;
-         end if;
-         --  Reading is in range 0 .. ADC_Conversion_Max_Value, ie 0 .. 1023,
-         --  so we are not likely to overflow for a reasonable interval, but
-         --  it is possible...
-         Total := Total + Reading;
-         Count := Count + 1;
-      end loop;
-      Result := Total / Count;
-   end Get_Average_Reading;
+package NXT.Analog.Polling is
 
-end NXT.Analog_Sensor_Utils;
+   type NXT_Analog_Sensor_Polled is abstract new NXT_Analog_Sensor with private;
+
+   overriding
+   procedure Initialize (This : in out NXT_Analog_Sensor_Polled) with
+     Post => Enabled (This);
+   --  Enables the clock for This.Converter (the ADC unit) and configures it
+   --  for software-triggered conversion initiation.
+
+   overriding
+   procedure Get_Raw_Reading
+     (This       : in out NXT_Analog_Sensor_Polled;
+      Reading    : out Natural;
+      Successful : out Boolean);
+   --  NB: This version polls for completion of the ADC conversion. If the
+   --  conversion times out, Reading is zero and Successful is False.
+
+private
+
+   type NXT_Analog_Sensor_Polled is new NXT_Analog_Sensor with null record;
+
+end NXT.Analog.Polling;

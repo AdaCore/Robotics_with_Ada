@@ -2,7 +2,7 @@
 --                                                                          --
 --                      Copyright (C) 2017, AdaCore                         --
 --                                                                          --
---  Redistribution and use in source and binary forms, with or without      --
+--  Redistribution and use inC source and binary forms, with or without      --
 --  modification, are permitted provided that the following conditions are  --
 --  met:                                                                    --
 --     1. Redistributions of source code must retain the above copyright    --
@@ -31,7 +31,7 @@
 
 with STM32.Device; use STM32.Device;
 
-package body NXT.Sound_Sensors is
+package body NXT.Analog.DMA.Light is
 
    ----------------
    -- Initialize --
@@ -39,46 +39,45 @@ package body NXT.Sound_Sensors is
 
    overriding
    procedure Initialize
-     (This : in out NXT_Sound_Sensor)
+     (This : in out NXT_Light_Sensor)
    is
    begin
       Initialize (NXT_Analog_Sensor_DMA (This));
 
-      Enable_Clock (This.Digital_0.all);
-      Enable_Clock (This.Digital_1.all);
-
-      Configure_IO
-        (This.Digital_0.all & This.Digital_1.all,
-         (Mode        => Mode_Out,
+      Enable_Clock (This.Floodlight_Pin);
+      This.Floodlight_Pin.Configure_IO
+        ((Mode        => Mode_Out,
           Resistors   => Pull_Down,
           Speed       => Speed_Medium,
           Output_Type => Push_Pull));
-
-      Set_Mode (This, dB);
+      This.Floodlight_Pin.Clear;
    end Initialize;
 
-   --------------
-   -- Set_Mode --
-   --------------
+   -------------------------
+   -- Enable_Output_Light --
+   -------------------------
 
-   procedure Set_Mode (This : in out NXT_Sound_Sensor; Mode : Sound_Modes) is
+   procedure Enable_Floodlight (This : in out NXT_Light_Sensor) is
    begin
-      case Mode is
-         when dB =>
-            This.Digital_0.Set;
-            This.Digital_1.Clear;
-         when dBA =>
-            This.Digital_0.Clear;
-            This.Digital_1.Set;
-      end case;
-      This.Mode := Mode;
-   end Set_Mode;
+      This.Floodlight_Pin.Set;
+      This.Floodlight_Enabled := True;
+   end Enable_Floodlight;
 
-   ------------------
-   -- Current_Mode --
-   ------------------
+   --------------------------
+   -- Disable_Output_Light --
+   --------------------------
 
-   function Current_Mode (This : NXT_Sound_Sensor) return Sound_Modes is
-      (This.Mode);
+   procedure Disable_Floodlight (This : in out NXT_Light_Sensor) is
+   begin
+      This.Floodlight_Pin.Clear;
+      This.Floodlight_Enabled := False;
+   end Disable_Floodlight;
 
-end NXT.Sound_Sensors;
+   ------------------------
+   -- Floodlight_Enabled --
+   ------------------------
+
+   function Floodlight_Enabled (This : NXT_Light_Sensor) return Boolean is
+      (This.Floodlight_Enabled);
+
+end NXT.Analog.DMA.Light;

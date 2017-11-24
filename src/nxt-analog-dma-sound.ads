@@ -29,53 +29,58 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
---  This package provides an abstract subclass for the NXT analog sensors.
---  This subclass uses DMA to acquire the raw sensor readings.
+--  This package provides a concrete subclass interface to the NXT sound
+--  sensor. This subclass uses DMA to acquire the raw sensor readings.
 
 --  Note that you must have an external pull-up resistor tied to +5V on the
 --  analog input pin. A 10K resistor works well.
 
-with STM32.DMA; use STM32.DMA;
+--  In addition to the sensor-specific call to procedure Initialize, clients
+--  are responsible for making the following calls to the ADC routines. They
+--  are not called internally by Initialize because the functionality and
+--  settings are independent of the specific ADC unit used for the sensor,
+--  i.e., we don't want to hard-code them globally for one usage. The arguments
+--  to procedure Configure_Common_Properties indicated below work with the NXT
+--  sound and light sensors
+--
+--    STM32.ADC.Reset_All_ADC_Units;
+--
+--    STM32.ADC.Configure_Common_Properties
+--      (Mode           => Independent,
+--       Prescalar      => PCLK2_Div_2,
+--       DMA_Mode       => Disabled,
+--       Sampling_Delay => Sampling_Delay_5_Cycles);
 
-package NXT.Analog_Sensors.DMA is
+package NXT.Analog.DMA.Sound is
 
-   type NXT_Analog_Sensor_DMA
-     (Converter      : not null access Analog_To_Digital_Converter;
-      Input_Channel  : Analog_Input_Channel;
-      Input_Pin      : not null access GPIO_Point;
-      Controller     : not null access DMA_Controller;
-      Stream         : DMA_Stream_Selector)
-   is abstract new NXT_Analog_Sensor
-   with private;
-   --  Note that, on the STM32F4xxx series, only DMA2 can attach to an ADC, per
-   --  Table 43 of the RM for that series. We include the specification of the
-   --  DMA Controller in this type declaration for the sake of reusing this
-   --  code on a different device family.
+   type NXT_Sound_Sensor is new NXT_Analog_Sensor_DMA with private;
+
+   --  For the sensor readings, the following values are roughly what to
+   --  expect:
+   --
+   --  4-5%    : a silent living room
+   --  5-10%   : someone talking some distance away
+   --  10-30%  : a normal conversation close to the sensor
+   --  30-100% : people shouting or music being played at a high volume
 
    overriding
-   procedure Initialize (This : in out NXT_Analog_Sensor_DMA) with
-     Post => Enabled (This);
+   procedure Initialize (This : in out NXT_Sound_Sensor);
 
-   overriding
-   procedure Get_Raw_Reading
-     (This       : in out NXT_Analog_Sensor_DMA;
-      Reading    : out Natural;
-      Successful : out Boolean);
+   type Sound_Modes is (dB, dBA);
+   --  The NXT Sound Sensor can be set to work in one of two modes.
+   --  Specifically, the sensor can detect both decibels [dB] and
+   --  adjusted decibels [dBA] in the two distinct modes.
+
+   procedure Set_Mode (This : in out NXT_Sound_Sensor; Mode : Sound_Modes);
+
+   function Current_Mode (This : NXT_Sound_Sensor) return Sound_Modes;
 
 private
 
-   type NXT_Analog_Sensor_DMA
-     (Converter      : not null access Analog_To_Digital_Converter;
-      Input_Channel  : Analog_Input_Channel;
-      Input_Pin      : not null access GPIO_Point;
-      Controller     : not null access DMA_Controller;
-      Stream         : DMA_Stream_Selector)
-   is new NXT_Analog_Sensor
-     (Converter,
-      Input_Channel,
-      Input_Pin)
-   with record
-      Raw_Value : Integer := 0 with Atomic;
+   type NXT_Sound_Sensor is new NXT_Analog_Sensor_DMA with record
+      Digital_0 : GPIO_Point;
+      Digital_1 : GPIO_Point;
+      Mode      : Sound_Modes := dB;
    end record;
 
-end NXT.Analog_Sensors.DMA;
+end NXT.Analog.DMA.Sound;

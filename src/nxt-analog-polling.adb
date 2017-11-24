@@ -29,32 +29,49 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
---  This package provides an abstract subclass for the NXT analog sensors.
---  This subclass uses polling to acquire the raw sensor readings.
+with STM32.Device; use STM32.Device;
 
---  Note that you must have an external pull-up resistor tied to +5V on the
---  analog input pin. A 10K resistor works well.
+package body NXT.Analog.Polling is
 
-package NXT.Analog_Sensors.Polling is
-
-   type NXT_Analog_Sensor_Polled is abstract new NXT_Analog_Sensor with private;
+   ----------------
+   -- Initialize --
+   ----------------
 
    overriding
-   procedure Initialize (This : in out NXT_Analog_Sensor_Polled) with
-     Post => Enabled (This);
-   --  Enables the clock for This.Converter (the ADC unit) and configures it
-   --  for software-triggered conversion initiation.
+   procedure Initialize
+     (This : in out NXT_Analog_Sensor_Polled)
+   is
+   begin
+      Initialize (NXT_Analog_Sensor (This));
+
+      Configure_Regular_Conversions
+        (This.Converter.all,
+         Continuous  => False,
+         Trigger     => Software_Triggered,
+         Enable_EOC  => True,
+         Conversions => Regular_Conversion (This.Input_Channel));
+
+      Enable (This.Converter.all);
+   end Initialize;
+
+   ---------------------
+   -- Get_Raw_Reading --
+   ---------------------
 
    overriding
    procedure Get_Raw_Reading
      (This       : in out NXT_Analog_Sensor_Polled;
       Reading    : out Natural;
-      Successful : out Boolean);
-   --  NB: This version polls for completion of the ADC conversion. If the
-   --  conversion times out, Reading is zero and Successful is False.
+      Successful : out Boolean)
+   is
+   begin
+      Start_Conversion (This.Converter.all);
+      Poll_For_Status (This.Converter.all, Regular_Channel_Conversion_Complete, Successful);
+      if not Successful then
+         Reading := 0;
+      else
+         Reading := Integer (Conversion_Value (This.Converter.all));
+      end if;
+   end Get_Raw_Reading;
 
-private
-
-   type NXT_Analog_Sensor_Polled is new NXT_Analog_Sensor with null record;
-
-end NXT.Analog_Sensors.Polling;
+end NXT.Analog.Polling;

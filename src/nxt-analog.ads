@@ -57,13 +57,9 @@ with STM32.GPIO;    use STM32.GPIO;
 with HAL;           use HAL;
 with Math_Utilities;
 
-package NXT.Analog_Sensors is
+package NXT.Analog is
 
-   type NXT_Analog_Sensor
-     (Converter     : not null access Analog_To_Digital_Converter;
-      Input_Channel : Analog_Input_Channel;
-      Input_Pin     : not null access GPIO_Point)
-   is abstract tagged limited private;
+   type NXT_Analog_Sensor is abstract tagged limited private;
    --  This is an analog device abstraction so the underlying device is an
    --  analog-to-digital converter (ADC). Therefore, the discriminants for
    --  the sensor object declarations are those required for ADC use.
@@ -87,19 +83,25 @@ package NXT.Analog_Sensors is
    --
    --  Sublcasses must also call this base-class version.
 
-   subtype Intensity is Integer range 0 .. 100;
-
-   type Reading_Status is (Valid_Reading, Reading_Failure);
-   --  Valid_Reading indicates successful acquisition and processing of the
-   --  sensor value into a scaled Intensity percentage.
+   subtype Varying_Directly is Natural;
+   --  The raw values coming from the sensor vary inversely with the sensed
+   --  input, i.e., "higher" inputs such as brighter light correspond to
+   --  numerically lower raw values. In contrast, values of this subtype are
+   --  meant to be those that vary directly with the sensed input, e.g., for
+   --  the light sensor, 0 corresponds to darkest incoming light expected,
+   --  whereas the max ADC resoluton value corresponds to the brightest
+   --  incoming light expected. This intent is not enforced, so the user
+   --  should ensure that the intent is honored.
    --
-   --  Reading_Failure indicates a failure to get a raw value from the ADC
-   --  driven by the sensor, via a call to Get_Raw_Reading.
+   --  Note the utility function As_Varying_Directly declared below.
 
-   procedure Get_Scaled_Reading
-     (This    : in out NXT_Analog_Sensor;
-      Reading : out Intensity;
-      Status  : out Reading_Status)
+   subtype Intensity is Varying_Directly range 0 .. 100;
+   --  Sensed values presented as a percentage of the possible input range
+
+   procedure Get_Intensity
+     (This       : in out NXT_Analog_Sensor;
+      Reading    : out Intensity;
+      Successful : out Boolean)
      with Pre'Class => Enabled (This);
    --  Calls the Get_Raw_Reading function to get the ADC sample from
    --  This.Converter on This.Input_Channel (which is connected to
@@ -141,18 +143,6 @@ package NXT.Analog_Sensors is
    --
    --  These would be useful, for example, when the results of a previous
    --  calibration have been restored and are to be reused.
-
-   subtype Varying_Directly is Natural;
-   --  The raw values coming from the sensor vary inversely with the sensed
-   --  input, i.e., "higher" inputs such as brighter light correspond to
-   --  numerically lower raw values. In contrast, values of this subtype are
-   --  meant to be those that vary directly with the sensed input, e.g., for
-   --  the light sensor, 0 corresponds to darkest incoming light expected,
-   --  whereas the max ADC resoluton value corresponds to the brightest
-   --  incoming light expected. This intent is not enforced, so the user
-   --  should ensure that the intent is honored.
-   --
-   --  Note the utility function As_Varying_Directly declared below.
 
    type Sensor_Calibration is record
       Least, Greatest : Varying_Directly;
@@ -201,15 +191,13 @@ private
           when ADC_Resolution_8_Bits  => 255,
           when ADC_Resolution_6_Bits  => 63);
 
-   type NXT_Analog_Sensor
-     (Converter     : not null access Analog_To_Digital_Converter;
+   type NXT_Analog_Sensor is abstract tagged limited record
+      Converter     : access Analog_To_Digital_Converter;
       Input_Channel : Analog_Input_Channel;
-      Input_Pin     : not null access GPIO_Point)
-   is abstract tagged limited record
-      High : Natural := Max_For_Resolution;
-      Low  : Natural := 0;
+      Input_Pin     : GPIO_Point;
+      High          : Varying_Directly := Max_For_Resolution;
+      Low           : Varying_Directly := 0;
    end record;
-   --  Low and High are in terms of values that vary directly with sensed input
 
    function Mapped is new Math_Utilities.Range_To_Domain_Mapping (Integer);
 
@@ -227,4 +215,4 @@ private
    function As_Varying_Directly (Inverse_Value : Integer) return Integer is
       (Max_For_Resolution - Inverse_Value);
 
-end NXT.Analog_Sensors;
+end NXT.Analog;

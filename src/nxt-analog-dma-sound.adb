@@ -29,36 +29,56 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
-package body NXT.Analog_Sensor_Utils is
+with STM32.Device; use STM32.Device;
 
-   -------------------------
-   -- Get_Average_Reading --
-   -------------------------
+package body NXT.Analog.DMA.Sound is
 
-   procedure Get_Average_Reading
-     (Sensor     : in out NXT_Analog_Sensor'Class;
-      Interval   : Time_Span;
-      Result     : out Integer;
-      Successful : out Boolean)
+   ----------------
+   -- Initialize --
+   ----------------
+
+   overriding
+   procedure Initialize
+     (This : in out NXT_Sound_Sensor)
    is
-      Deadline : constant Time := Clock + Interval;
-      Reading  : Integer;
-      Total    : Integer := 0;
-      Count    : Integer := 0;
    begin
-      while Clock <= Deadline loop
-         Get_Raw_Reading (Sensor, Reading, Successful);
-         if not Successful then
-            Result := 0;
-            return;
-         end if;
-         --  Reading is in range 0 .. ADC_Conversion_Max_Value, ie 0 .. 1023,
-         --  so we are not likely to overflow for a reasonable interval, but
-         --  it is possible...
-         Total := Total + Reading;
-         Count := Count + 1;
-      end loop;
-      Result := Total / Count;
-   end Get_Average_Reading;
+      Initialize (NXT_Analog_Sensor_DMA (This));
 
-end NXT.Analog_Sensor_Utils;
+      Enable_Clock (This.Digital_0);
+      Enable_Clock (This.Digital_1);
+
+      Configure_IO
+        (This.Digital_0 & This.Digital_1,
+         (Mode        => Mode_Out,
+          Resistors   => Pull_Down,
+          Speed       => Speed_Medium,
+          Output_Type => Push_Pull));
+
+      Set_Mode (This, dB);
+   end Initialize;
+
+   --------------
+   -- Set_Mode --
+   --------------
+
+   procedure Set_Mode (This : in out NXT_Sound_Sensor; Mode : Sound_Modes) is
+   begin
+      case Mode is
+         when dB =>
+            This.Digital_0.Set;
+            This.Digital_1.Clear;
+         when dBA =>
+            This.Digital_0.Clear;
+            This.Digital_1.Set;
+      end case;
+      This.Mode := Mode;
+   end Set_Mode;
+
+   ------------------
+   -- Current_Mode --
+   ------------------
+
+   function Current_Mode (This : NXT_Sound_Sensor) return Sound_Modes is
+      (This.Mode);
+
+end NXT.Analog.DMA.Sound;
