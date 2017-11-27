@@ -52,6 +52,16 @@
 --       DMA_Mode       => Disabled,
 --       Sampling_Delay => Sampling_Delay_5_Cycles);
 
+--  The wiring connections are as follows, for the standard Lego NXT
+--  connectors:
+--
+--  Pin 1 (white wire)  - Analog output from the device, required
+--  Pin 2 (black wire)  - Ground (either one, or both)
+--  Pin 3 (red wire)    - Ground (either one, or both)
+--  Pin 4 (green wire)  - Vcc (+5V), required to power the sensor
+--  Pin 5 (yellow wire) - Used in some sensors ("Digital_0" in literature)
+--  Pin 6 (blue wire)   - Used in some sensors ("Digital_1" in literature)
+
 with STM32.ADC;     use STM32.ADC;
 with STM32.GPIO;    use STM32.GPIO;
 with HAL;           use HAL;
@@ -60,16 +70,7 @@ with Math_Utilities;
 package NXT.Analog is
 
    type NXT_Analog_Sensor is abstract tagged limited private;
-
-   --  The wiring connections are as follows, for the standard Lego NXT
-   --  connectors:
-   --
-   --  Pin 1 (white wire)  - Analog output from the device, required
-   --  Pin 2 (black wire)  - Ground (either one, or both)
-   --  Pin 3 (red wire)    - Ground (either one, or both)
-   --  Pin 4 (green wire)  - Vcc (+5V), required to power the sensor
-   --  Pin 5 (yellow wire) - Used in some sensors ("Digital_0" in literature)
-   --  Pin 6 (blue wire)   - Used in some sensors ("Digital_1" in literature)
+   --  The root abstract baseclass type for NXT analog sensors.
 
    procedure Initialize (This : in out NXT_Analog_Sensor);
    --  Initializes the input port/pin and the basics for the ADC itself, such
@@ -99,23 +100,21 @@ package NXT.Analog is
      (This       : in out NXT_Analog_Sensor;
       Reading    : out Intensity;
       Successful : out Boolean)
-     with Pre'Class => Enabled (This);
+   with Pre'Class => Enabled (This);
    --  Calls the Get_Raw_Reading function to get the ADC sample from
    --  This.Converter on This.Input_Channel (which is connected to
    --  This.Input_Pin) and returns that value as a percentage of the possible
    --  conversion range.
    --
-   --  Unlike raw values, which vary inversely with the sensed inputs, the
-   --  returned percentage values vary directly with sensed inputs. In other
-   --  words, a lower returned percentage indicates a lesser incoming sensed
-   --  value, e.g. less brightness sensed for a light sensor.
+   --  The returned percentage values vary directly with the magnitude of the
+   --  sensed inputs.
 
    procedure Get_Raw_Reading
      (This       : in out NXT_Analog_Sensor;
       Reading    : out Natural;
       Successful : out Boolean)
-     is abstract
-     with Pre'Class => Enabled (This);
+   is abstract
+   with Pre'Class => Enabled (This);
    --  Interacts with the ADC indicated by This.Converter to acquire a raw
    --  sample on This.Input_Channel (which is connected to This.Input_Pin)
    --  and returns that raw value in the Reading parameter. The parameter
@@ -124,9 +123,6 @@ package NXT.Analog is
    --  NB: Raw values vary inversely with the brightness of the sensed light.
    --  This function does nothing to change that and simply returns the raw
    --  value sensed bythe ADC.
-   --
-   --  NB: This version polls for completion of the ADC conversion. If the
-   --  conversion times out, Reading is zero and Successful is False.
 
    procedure Enable (This : in out NXT_Analog_Sensor) with
      Post'Class => Enabled (This);
@@ -197,8 +193,14 @@ private
    --  the sensor object are those required for ADC use.
 
    function Mapped is new Math_Utilities.Range_To_Domain_Mapping (Integer);
+   --  Mapps a given value from the given range to the given domain. Used to
+   --  scale a raw input value in the range Low .. High to the percentage value
+   --  0 .. 100.
 
    function Constrained is new Math_Utilities.Bounded_Value (Integer);
+   --  Ensures a given value is at least the value of a given low bound, and at
+   --  most the value of a given high bound. Used to make sure the given value
+   --  is within the range of Intensity, the percentage 0 .. 100.
 
    function Regular_Conversion (Channel : Analog_Input_Channel)
      return Regular_Channel_Conversions is

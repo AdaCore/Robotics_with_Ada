@@ -48,8 +48,9 @@ package NXT.Analog.Polling is
      (This       : in out NXT_Analog_Sensor_Polled;
       Reading    : out Natural;
       Successful : out Boolean);
-   --  NB: This version polls for completion of the ADC conversion. If the
-   --  conversion times out, Reading is zero and Successful is False.
+   --  NB: This version initiates an ADC conversion and then polls for
+   --  completion. If the conversion times out, Reading is zero and
+   --  Successful is False. The timeout is set to one second.
 
 private
 

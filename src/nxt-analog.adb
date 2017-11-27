@@ -49,10 +49,6 @@ package body NXT.Analog is
         (This.Converter.all,
          Resolution => NXT_Brick_ADC_Resolution,
          Alignment  => Right_Aligned);
-
-      --  Further configuration of the ADC unit This.Converter.all is not done
-      --  here because the configurations differ: eg, some are continuous and
-      --  some not
    end Initialize;
 
    -------------------
