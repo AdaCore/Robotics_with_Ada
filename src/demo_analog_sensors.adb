@@ -30,15 +30,46 @@
 ------------------------------------------------------------------------------
 
 --  This program demonstrates setup, calibration, and interaction with the
---  NXT Lego analog sensors. It can handle any kind of analog sensor. All it
---  does is iteratively display the currently received sensed values.
+--  NXT Lego analog sensors.
 
 --  Note that you must have an external pull-up resistor tied to +5V on the
 --  analog input pin. A 10K resistor works well.
 
---  The main procedure's sequence of statements sets up the hardware and
---  then iterates forever, sampling the sensor and displaying values on
---  the LCD screen.
+--  The main procedure's sequence of statements sets up the hardware and then
+--  iterates forever, sampling the sensor and displaying the raw and computed
+--  percentage values on the LCD screen. It works for either the light sensors
+--  or the sound sensors but it is initially configured to use a light sensor.
+--
+--  Selecting the type of sensor used in the demonstration is trivial: change
+--  the kind specified to the sensor factory function.
+--
+--  To use this program, connect the light sensor to a supported board with
+--  an LCD, such as the STM32F429I Discovery board, and run the program. (The
+--  projecty file is set up to use an F429I Disco board.) On the LCD screen,
+--  wait for the sensor to indicate the expected input environment, put the
+--  sensor in that state, and then press the blue user button. For example,
+--  point the light sensor toward the darkest, least light inputs when prompted
+--  for the minimum inputs. Similarly, when prompted for the maximum inputs,
+--  point it toward the brightest light source available. After the blue user
+--  button is pressed and released the sensor will take samples for two seconds
+--  and then compute the average for that state. The program will do this for
+--  both the minimum and the maximum input states. Afterwards it will display
+--  the raw values for those two states, and then again will prompt for
+--  the blue user button to be pressed and released. The program will then
+--  continually display the current sensed values. Move the light sensor around
+--  so that it receives different input levels, so that you can see the changes
+--  displayed on the screen. If using a sound sensor, arrange for louder and
+--  softer inputs to see the changes displayed.
+
+--  The wiring connections are as follows, for the standard Lego NXT
+--  connectors:
+--
+--  Pin 1 (white wire)  - Analog output from the device, required
+--  Pin 2 (black wire)  - Ground (either one, or both)
+--  Pin 3 (red wire)    - Ground (either one, or both)
+--  Pin 4 (green wire)  - Vcc (+5V), required to power the sensor
+--  Pin 5 (yellow wire) - Used in some sensors ("Digital0" in literature)
+--  Pin 6 (blue wire)   - Used in some sensors ("Digital1" in literature)
 
 with LCD_Std_Out;  use LCD_Std_Out;
 
@@ -59,8 +90,8 @@ with Ada.Real_Time;  use Ada.Real_Time;
 procedure Demo_Analog_Sensors is
 
    Sensor : NXT_Analog_Sensor'Class := Analog_Sensor_Factory.New_Sensor (Kind => Light);
-   --  You are intended to try the out different analog sensors by changing the
-   --  kind of sensor produced by the factory function
+   --  You are intended to try the out various analog sensors by changing the
+   --  kind of sensor produced by the factory function.
 
    Next_Release : Time := Clock;
    Period       : constant Time_Span := Milliseconds (100);  -- arbitrary
