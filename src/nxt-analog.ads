@@ -60,10 +60,7 @@ with Math_Utilities;
 package NXT.Analog is
 
    type NXT_Analog_Sensor is abstract tagged limited private;
-   --  This is an analog device abstraction so the underlying device is an
-   --  analog-to-digital converter (ADC). Therefore, the discriminants for
-   --  the sensor object declarations are those required for ADC use.
-   --
+
    --  The wiring connections are as follows, for the standard Lego NXT
    --  connectors:
    --
@@ -139,10 +136,7 @@ package NXT.Analog is
 
    function Enabled (This : NXT_Analog_Sensor) return Boolean;
 
-   --  Manual calibration routines  -------------------------------------------
-   --
-   --  These would be useful, for example, when the results of a previous
-   --  calibration have been restored and are to be reused.
+   --  Manual calibration  ----------------------------------------------------
 
    type Sensor_Calibration is record
       Least, Greatest : Varying_Directly;
@@ -198,6 +192,9 @@ private
       High          : Varying_Directly := Max_For_Resolution;
       Low           : Varying_Directly := 0;
    end record;
+   --  This is an analog device abstraction so the underlying device is an
+   --  analog-to-digital converter (ADC). Therefore, the components for
+   --  the sensor object are those required for ADC use.
 
    function Mapped is new Math_Utilities.Range_To_Domain_Mapping (Integer);
 
