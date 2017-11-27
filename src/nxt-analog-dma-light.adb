@@ -50,7 +50,8 @@ package body NXT.Analog.DMA.Light is
           Resistors   => Pull_Down,
           Speed       => Speed_Medium,
           Output_Type => Push_Pull));
-      This.Floodlight_Pin.Clear;
+
+      Disable_Floodlight (This);
    end Initialize;
 
    -------------------------
