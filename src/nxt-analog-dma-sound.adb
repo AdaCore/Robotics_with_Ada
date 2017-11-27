@@ -44,11 +44,11 @@ package body NXT.Analog.DMA.Sound is
    begin
       Initialize (NXT_Analog_Sensor_DMA (This));
 
-      Enable_Clock (This.Digital_0);
-      Enable_Clock (This.Digital_1);
+      Enable_Clock (This.Mode_Pin_0);
+      Enable_Clock (This.Mode_Pin_1);
 
       Configure_IO
-        (This.Digital_0 & This.Digital_1,
+        (This.Mode_Pin_0 & This.Mode_Pin_1,
          (Mode        => Mode_Out,
           Resistors   => Pull_Down,
           Speed       => Speed_Medium,
@@ -65,11 +65,11 @@ package body NXT.Analog.DMA.Sound is
    begin
       case Mode is
          when dB =>
-            This.Digital_0.Set;
-            This.Digital_1.Clear;
+            This.Mode_Pin_0.Set;
+            This.Mode_Pin_1.Clear;
          when dBA =>
-            This.Digital_0.Clear;
-            This.Digital_1.Set;
+            This.Mode_Pin_0.Clear;
+            This.Mode_Pin_1.Set;
       end case;
       This.Mode := Mode;
    end Set_Mode;

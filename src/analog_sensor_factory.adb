@@ -51,7 +51,7 @@ package body Analog_Sensor_Factory is
    Matching_Stream        : constant DMA_Stream_Selector := Stream_0;
    --  maps to ADC_1 on DMA_2 (Stream_4 is the only alternative)
 
-   Digital_Line_0         : constant GPIO_Point := PC11;    -- arbitrary
+   Digital_Line_0         : constant GPIO_Point := PC11;   -- arbitrary
    Digital_Line_1         : constant GPIO_Point := PC12;   -- arbitrary
 
    ----------------
@@ -71,13 +71,13 @@ package body Analog_Sensor_Factory is
                Floodlight_Pin => Digital_Line_0);
          when Sound =>
             return Result : NXT_Analog_Sensor'Class := New_Sound_Sensor
-              (Converter      => Selected_ADC_Unit'Access,
-               Input_Channel  => Selected_Input_Channel,
-               Input_Pin      => Matching_Input_Pin,
-               Controller     => Required_DMA_Unit'Access,
-               Stream         => Matching_Stream,
-               Digital_0      => Digital_Line_0,
-               Digital_1      => Digital_Line_1);
+              (Converter     => Selected_ADC_Unit'Access,
+               Input_Channel => Selected_Input_Channel,
+               Input_Pin     => Matching_Input_Pin,
+               Controller    => Required_DMA_Unit'Access,
+               Stream        => Matching_Stream,
+               Mode_Pin_0    => Digital_Line_0,
+               Mode_Pin_1    => Digital_Line_1);
       end case;
    end New_Sensor;
 

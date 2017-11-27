@@ -6,8 +6,8 @@ package NXT.Analog.DMA.Sound.Constructors is
       Input_Pin     : GPIO_Point;
       Controller    : not null access DMA_Controller;
       Stream        : DMA_Stream_Selector;
-      Digital_0     : GPIO_Point;
-      Digital_1     : GPIO_Point)
+      Mode_Pin_0    : GPIO_Point;
+      Mode_Pin_1    : GPIO_Point)
    return NXT_Sound_Sensor;
 
 end NXT.Analog.DMA.Sound.Constructors;

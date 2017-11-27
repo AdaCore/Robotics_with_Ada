@@ -70,6 +70,14 @@ package NXT.Analog.DMA.Sound is
    --  The NXT Sound Sensor can be set to work in one of two modes.
    --  Specifically, the sensor can detect both decibels [dB] and
    --  adjusted decibels [dBA] in the two distinct modes.
+   --
+   --  dBA: in detecting adjusted decibels, the sensitivity of the sensor is
+   --  adapted to the sensitivity of the human ear. In other words, these are
+   --  the sounds that your ears are able to hear.
+   --
+   --  dB: in detecting standard [unadjusted] decibels, all sounds are measured
+   --  with equal sensitivity. Thus, these sounds may include some that are too
+   --  high or too low for the human ear to hear.
 
    procedure Set_Mode (This : in out NXT_Sound_Sensor; Mode : Sound_Modes);
 
@@ -78,9 +86,9 @@ package NXT.Analog.DMA.Sound is
 private
 
    type NXT_Sound_Sensor is new NXT_Analog_Sensor_DMA with record
-      Digital_0 : GPIO_Point;
-      Digital_1 : GPIO_Point;
-      Mode      : Sound_Modes := dB;
+      Mode_Pin_0 : GPIO_Point;
+      Mode_Pin_1 : GPIO_Point;
+      Mode       : Sound_Modes := dB;
    end record;
 
 end NXT.Analog.DMA.Sound;
