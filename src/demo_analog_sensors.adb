@@ -58,7 +58,7 @@ with Ada.Real_Time;  use Ada.Real_Time;
 
 procedure Demo_Analog_Sensors is
 
-   Sensor : NXT_Analog_Sensor'Class := Analog_Sensor_Factory.New_Sensor (Kind => Sound);
+   Sensor : NXT_Analog_Sensor'Class := Analog_Sensor_Factory.New_Sensor (Kind => Light);
    --  You are intended to try the out different analog sensors by changing the
    --  kind of sensor produced by the factory function
 
