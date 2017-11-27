@@ -42,8 +42,6 @@ package NXT.Analog.Polling is
    overriding
    procedure Initialize (This : in out NXT_Analog_Sensor_Polled) with
      Post => Enabled (This);
-   --  Enables the clock for This.Converter (the ADC unit) and configures it
-   --  for software-triggered conversion initiation.
 
    overriding
    procedure Get_Raw_Reading

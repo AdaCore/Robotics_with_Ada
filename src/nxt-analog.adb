@@ -51,8 +51,8 @@ package body NXT.Analog is
          Alignment  => Right_Aligned);
 
       --  Further configuration of the ADC unit This.Converter.all is not done
-      --  here because the configuration differs: some are continuous and some
-      --  not
+      --  here because the configurations differ: eg, some are continuous and
+      --  some not
    end Initialize;
 
    -------------------

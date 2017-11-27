@@ -67,7 +67,7 @@ package body NXT.Analog.DMA is
          This.Stream,
          Source      => Data_Register_Address (This.Converter.all),
          Destination => This.Raw_Value'Address,
-         Data_Count  => 1);  -- ie, 1 word
+         Data_Count  => 1);  -- ie, 1 half-word
       Start_Conversion (This.Converter.all);
    end Initialize;
 

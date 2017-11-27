@@ -35,15 +35,14 @@
 --  Note that you must have an external pull-up resistor tied to +5V on the
 --  analog input pin. A 10K resistor works well.
 
+--  Note that, on the STM32F4xxx series, only DMA2 can attach to an ADC, per
+--  Table 43 of the RM for that series.
+
 with STM32.DMA; use STM32.DMA;
 
 package NXT.Analog.DMA is
 
    type NXT_Analog_Sensor_DMA is abstract new NXT_Analog_Sensor with private;
-   --  Note that, on the STM32F4xxx series, only DMA2 can attach to an ADC, per
-   --  Table 43 of the RM for that series. We include the specification of the
-   --  DMA Controller in this type declaration for the sake of reusing this
-   --  code on a different device family.
 
    overriding
    procedure Initialize (This : in out NXT_Analog_Sensor_DMA) with
