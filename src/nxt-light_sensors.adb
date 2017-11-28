@@ -31,7 +31,7 @@
 
 with STM32.Device; use STM32.Device;
 
-package body NXT.Analog.DMA.Light is
+package body NXT.Light_Sensors is
 
    ----------------
    -- Initialize --
@@ -81,4 +81,4 @@ package body NXT.Analog.DMA.Light is
    function Floodlight_Enabled (This : NXT_Light_Sensor) return Boolean is
       (This.Floodlight_Enabled);
 
-end NXT.Analog.DMA.Light;
+end NXT.Light_Sensors;

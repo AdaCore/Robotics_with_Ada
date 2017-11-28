@@ -1,4 +1,7 @@
-package NXT.Analog.DMA.Light.Constructors is
+with STM32.ADC;  use STM32.ADC;
+with STM32.DMA;  use STM32.DMA;
+
+package NXT.Light_Sensors.Constructors is
 
    function New_Light_Sensor
      (Converter      : not null access Analog_To_Digital_Converter;
@@ -9,4 +12,4 @@ package NXT.Analog.DMA.Light.Constructors is
       Floodlight_Pin : GPIO_Point)
    return NXT_Light_Sensor;
 
-end NXT.Analog.DMA.Light.Constructors;
+end NXT.Light_Sensors.Constructors;

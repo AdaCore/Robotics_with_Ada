@@ -29,49 +29,56 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
---  This package provides a concrete subclass interface to the NXT light
---  sensor. This subclass uses DMA to acquire the raw sensor readings.
+with STM32.Device; use STM32.Device;
 
---  Note that you must have an external pull-up resistor tied to +5V on the
---  analog input pin. A 10K resistor works well.
+package body NXT.Sound_Sensors is
 
---  In addition to the sensor-specific call to procedure Initialize, clients
---  are responsible for making the following calls to the ADC routines. They
---  are not called internally by Initialize because the functionality and
---  settings are independent of the specific ADC unit used for the sensor,
---  i.e., we don't want to hard-code them globally for one usage. The arguments
---  to procedure Configure_Common_Properties indicated below work with the NXT
---  sound and light sensors
---
---    STM32.ADC.Reset_All_ADC_Units;
---
---    STM32.ADC.Configure_Common_Properties
---      (Mode           => Independent,
---       Prescalar      => PCLK2_Div_2,
---       DMA_Mode       => Disabled,
---       Sampling_Delay => Sampling_Delay_5_Cycles);
-
-package NXT.Analog.DMA.Light is
-
-   type NXT_Light_Sensor is new NXT_Analog_Sensor_DMA with private;
+   ----------------
+   -- Initialize --
+   ----------------
 
    overriding
-   procedure Initialize (This : in out NXT_Light_Sensor) with
-     Post => not Floodlight_Enabled (This);
+   procedure Initialize
+     (This : in out NXT_Sound_Sensor)
+   is
+   begin
+      Initialize (NXT_Analog_Sensor_DMA (This));
 
-   procedure Enable_Floodlight (This : in out NXT_Light_Sensor) with
-     Post => Floodlight_Enabled (This);
+      Enable_Clock (This.Mode_Pin_0);
+      Enable_Clock (This.Mode_Pin_1);
 
-   procedure Disable_Floodlight (This : in out NXT_Light_Sensor) with
-     Post => not Floodlight_Enabled (This);
+      Configure_IO
+        (This.Mode_Pin_0 & This.Mode_Pin_1,
+         (Mode        => Mode_Out,
+          Resistors   => Pull_Down,
+          Speed       => Speed_Medium,
+          Output_Type => Push_Pull));
 
-   function Floodlight_Enabled (This : NXT_Light_Sensor) return Boolean;
+      Set_Mode (This, dB);
+   end Initialize;
 
-private
+   --------------
+   -- Set_Mode --
+   --------------
 
-   type NXT_Light_Sensor is new NXT_Analog_Sensor_DMA with record
-      Floodlight_Pin     : GPIO_Point;
-      Floodlight_Enabled : Boolean := False;
-   end record;
+   procedure Set_Mode (This : in out NXT_Sound_Sensor; Mode : Sound_Modes) is
+   begin
+      case Mode is
+         when dB =>
+            This.Mode_Pin_0.Set;
+            This.Mode_Pin_1.Clear;
+         when dBA =>
+            This.Mode_Pin_0.Clear;
+            This.Mode_Pin_1.Set;
+      end case;
+      This.Mode := Mode;
+   end Set_Mode;
 
-end NXT.Analog.DMA.Light;
+   ------------------
+   -- Current_Mode --
+   ------------------
+
+   function Current_Mode (This : NXT_Sound_Sensor) return Sound_Modes is
+      (This.Mode);
+
+end NXT.Sound_Sensors;

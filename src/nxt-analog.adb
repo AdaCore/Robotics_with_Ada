@@ -34,6 +34,22 @@ with STM32.Device; use STM32.Device;
 package body NXT.Analog is
 
    ----------------
+   -- Assign_ADC --
+   ----------------
+
+   procedure Assign_ADC
+     (This          : in out NXT_Analog_Sensor;
+      Converter     : access Analog_To_Digital_Converter;
+      Input_Channel : Analog_Input_Channel;
+      Input_Pin     : GPIO_Point)
+   is
+   begin
+      This.Converter     := Converter;
+      This.Input_Channel := Input_Channel;
+      This.Input_Pin     := Input_Pin;
+   end Assign_ADC;
+
+   ----------------
    -- Initialize --
    ----------------
 

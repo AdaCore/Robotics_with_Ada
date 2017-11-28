@@ -51,7 +51,10 @@
 --       DMA_Mode       => Disabled,
 --       Sampling_Delay => Sampling_Delay_5_Cycles);
 
-package NXT.Analog.DMA.Sound is
+with NXT.Analog.DMA; use NXT.Analog.DMA;
+with STM32.GPIO;     use STM32.GPIO;
+
+package NXT.Sound_Sensors is
 
    type NXT_Sound_Sensor is new NXT_Analog_Sensor_DMA with private;
 
@@ -91,4 +94,4 @@ private
       Mode       : Sound_Modes := dB;
    end record;
 
-end NXT.Analog.DMA.Sound;
+end NXT.Sound_Sensors;

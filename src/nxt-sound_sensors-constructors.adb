@@ -1,4 +1,4 @@
-package body NXT.Analog.DMA.Sound.Constructors is
+package body NXT.Sound_Sensors.Constructors is
 
    ----------------------
    -- New_Light_Sensor --
@@ -16,14 +16,11 @@ package body NXT.Analog.DMA.Sound.Constructors is
    is
    begin
       return Result : NXT_Sound_Sensor do
-         Result.Converter     := Converter;
-         Result.Input_Channel := Input_Channel;
-         Result.Input_Pin     := Input_Pin;
-         Result.Controller    := Controller;
-         Result.Stream        := Stream;
-         Result.Mode_Pin_0    := Mode_Pin_0;
-         Result.Mode_Pin_1    := Mode_Pin_1;
+         Result.Assign_ADC (Converter, Input_Channel, Input_Pin);
+         Result.Assign_DMA (Controller, Stream);
+         Result.Mode_Pin_0 := Mode_Pin_0;
+         Result.Mode_Pin_1 := Mode_Pin_1;
       end return;
    end New_Sound_Sensor;
 
-end NXT.Analog.DMA.Sound.Constructors;
+end NXT.Sound_Sensors.Constructors;

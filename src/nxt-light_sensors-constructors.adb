@@ -1,4 +1,4 @@
-package body NXT.Analog.DMA.Light.Constructors is
+package body NXT.Light_Sensors.Constructors is
 
    ----------------------
    -- New_Light_Sensor --
@@ -15,13 +15,10 @@ package body NXT.Analog.DMA.Light.Constructors is
    is
    begin
       return Result : NXT_Light_Sensor do
-         Result.Converter      := Converter;
-         Result.Input_Channel  := Input_Channel;
-         Result.Input_Pin      := Input_Pin;
-         Result.Controller     := Controller;
-         Result.Stream         := Stream;
+         Result.Assign_ADC (Converter, Input_Channel, Input_Pin);
+         Result.Assign_DMA (Controller, Stream);
          Result.Floodlight_Pin := Floodlight_Pin;
       end return;
    end New_Light_Sensor;
 
-end NXT.Analog.DMA.Light.Constructors;
+end NXT.Light_Sensors.Constructors;

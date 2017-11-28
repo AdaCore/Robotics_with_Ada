@@ -72,6 +72,12 @@ package NXT.Analog is
    type NXT_Analog_Sensor is abstract tagged limited private;
    --  The root abstract baseclass type for NXT analog sensors.
 
+   procedure Assign_ADC
+     (This          : in out NXT_Analog_Sensor;
+      Converter     : access Analog_To_Digital_Converter;
+      Input_Channel : Analog_Input_Channel;
+      Input_Pin     : GPIO_Point);
+
    procedure Initialize (This : in out NXT_Analog_Sensor);
    --  Initializes the input port/pin and the basics for the ADC itself, such
    --  as the resolution and alignment, but does not do anything because

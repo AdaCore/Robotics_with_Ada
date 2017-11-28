@@ -44,6 +44,11 @@ package NXT.Analog.DMA is
 
    type NXT_Analog_Sensor_DMA is abstract new NXT_Analog_Sensor with private;
 
+   procedure Assign_DMA
+     (This       : in out NXT_Analog_Sensor_DMA;
+      Controller : access DMA_Controller;
+      Stream     : DMA_Stream_Selector);
+
    overriding
    procedure Initialize (This : in out NXT_Analog_Sensor_DMA) with
      Post => Enabled (This);

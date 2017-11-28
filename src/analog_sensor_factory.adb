@@ -34,11 +34,11 @@ with STM32.ADC;    use STM32.ADC;
 with STM32.GPIO;   use STM32.GPIO;
 with STM32.DMA;    use STM32.DMA;
 
-with NXT.Analog.DMA.Light.Constructors; use NXT.Analog.DMA.Light.Constructors;
-with NXT.Analog.DMA.Sound.Constructors; use NXT.Analog.DMA.Sound.Constructors;
+with NXT.Light_Sensors.Constructors; use NXT.Light_Sensors.Constructors;
+with NXT.Sound_Sensors.Constructors; use NXT.Sound_Sensors.Constructors;
 
-use  NXT.Analog.DMA.Light;
-use  NXT.Analog.DMA.Sound;
+use NXT.Sound_Sensors;
+use NXT.Light_Sensors;
 
 package body Analog_Sensor_Factory is
 

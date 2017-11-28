@@ -1,4 +1,7 @@
-package NXT.Analog.DMA.Sound.Constructors is
+with STM32.ADC;  use STM32.ADC;
+with STM32.DMA;  use STM32.DMA;
+
+package NXT.Sound_Sensors.Constructors is
 
    function New_Sound_Sensor
      (Converter     : not null access Analog_To_Digital_Converter;
@@ -10,4 +13,4 @@ package NXT.Analog.DMA.Sound.Constructors is
       Mode_Pin_1    : GPIO_Point)
    return NXT_Sound_Sensor;
 
-end NXT.Analog.DMA.Sound.Constructors;
+end NXT.Sound_Sensors.Constructors;

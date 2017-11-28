@@ -44,6 +44,20 @@ package body NXT.Analog.DMA is
       Channel : Analog_Input_Channel);
 
    ----------------
+   -- Assign_DMA --
+   ----------------
+
+   procedure Assign_DMA
+     (This       : in out NXT_Analog_Sensor_DMA;
+      Controller : access DMA_Controller;
+      Stream     : DMA_Stream_Selector)
+   is
+   begin
+      This.Controller := Controller;
+      This.Stream     := Stream;
+   end Assign_DMA;
+
+   ----------------
    -- Initialize --
    ----------------
 
