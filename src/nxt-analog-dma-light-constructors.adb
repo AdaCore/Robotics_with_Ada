@@ -21,8 +21,6 @@ package body NXT.Analog.DMA.Light.Constructors is
          Result.Controller     := Controller;
          Result.Stream         := Stream;
          Result.Floodlight_Pin := Floodlight_Pin;
-
-         Initialize (Result);
       end return;
    end New_Light_Sensor;
 

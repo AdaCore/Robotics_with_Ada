@@ -23,8 +23,6 @@ package body NXT.Analog.DMA.Sound.Constructors is
          Result.Stream        := Stream;
          Result.Mode_Pin_0    := Mode_Pin_0;
          Result.Mode_Pin_1    := Mode_Pin_1;
-
-         Initialize (Result);
       end return;
    end New_Sound_Sensor;
 
