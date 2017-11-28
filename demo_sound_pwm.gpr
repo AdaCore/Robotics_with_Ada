@@ -16,7 +16,7 @@ project Demo_Sound_PWM extends "Ada_Drivers_Library/examples/shared/common/commo
 
    for Source_Dirs use ("src/**");
 
-   for Object_Dir use "obj/demo_sound_sensor/" & App_BUILD;
+   for Object_Dir use "obj/demo_sound_pwm/" & App_BUILD;
 
    App_Switches := "";
 
