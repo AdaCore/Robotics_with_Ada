@@ -33,6 +33,10 @@
 --  all analog sensors. The specific kind of sensor created is controlled by a
 --  parameter.
 
+--  Note that the factory function is meant to be called only once, in this
+--  configuration, because it applies the same exact hardware devices to every
+--  sensor created.
+
 with NXT.Analog; use NXT.Analog;
 
 package Analog_Sensor_Factory is
