@@ -36,15 +36,34 @@
 
 --  NOTE: this program is set up to run on an STM32F4 Discovery board. You can
 --  change that, but note that not all boards can drive an LED via PWM (e.g.,
---  the F429 Disco board).
+--  the F429I Disco board cannot).
 
 --  This program requires one LED. The code is currently written to use one
 --  of the four LEDs on the F4 Discovery board, but a different board could
 --  certainly be used instead, as long as the LED can be driven by a timer
---  channel (not all can do so).
+--  channel.
 
 --  NOTE: you must have an external pull-up resistor tied to +5V on the analog
 --  input pin. A 10K resistor works well. You will get odd readings otherwise.
+
+--  To use this program, connect an NXT sound sensor to a supported board. The
+--  project file is configured for an STM32F4 Discovery board. Place the sound
+--  sensor next to a sound source, such as a loud-speaker, or just speak into
+--  it. In either case place the sensor reasonably close to the sound source,
+--  e.g., no more than twice the length of the sensor itself. As the input
+--  sound volume increases and decreases, the orange LED will brighten and dim,
+--  respectively (assuming a board with an orange LED, such as the F4 Disco
+--  board).
+
+--  The wiring connections for connecting the senor to the board are as
+--  follows, for the standard Lego NXT connectors:
+--
+--  Pin 1 (white wire)  - Analog output from the device, required
+--  Pin 2 (black wire)  - Ground (either one, or both)
+--  Pin 3 (red wire)    - Ground (either one, or both)
+--  Pin 4 (green wire)  - Vcc (+5V), required to power the sensor
+--  Pin 5 (yellow wire) - Used in some sensors ("Digital0" in literature)
+--  Pin 6 (blue wire)   - Used in some sensors ("Digital1" in literature)
 
 with Last_Chance_Handler;  pragma Unreferenced (Last_Chance_Handler);
 
@@ -66,7 +85,7 @@ with Ada.Real_Time; use Ada.Real_Time;
 procedure Demo_Sound_Sensor is
 
    Sensor : NXT_Analog_Sensor'Class := Analog_Sensor_Factory.New_Sensor (Kind => Sound);
-   --  This demo always uses a sound sensor.
+   --  This demo always uses a sound sensor. Don't change that.
 
    LED_Power_Control : PWM_Modulator;
    --  This is the power generator driving the LED. The LED brightness will
