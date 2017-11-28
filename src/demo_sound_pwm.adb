@@ -82,7 +82,7 @@ with Analog_Sensor_Factory; use Analog_Sensor_Factory;
 
 with Ada.Real_Time; use Ada.Real_Time;
 
-procedure Demo_Sound_Sensor is
+procedure Demo_Sound_PWM is
 
    Sensor : NXT_Analog_Sensor'Class := Analog_Sensor_Factory.New_Sensor (Kind => Sound);
    --  This demo always uses a sound sensor. Don't change that.
@@ -188,4 +188,4 @@ begin
       Next_Release := Next_Release + Period;
       delay until Next_Release;
    end loop;
-end Demo_Sound_Sensor;
+end Demo_Sound_PWM;

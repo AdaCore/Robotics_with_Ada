@@ -6,7 +6,7 @@ project Demo_Sound_PWM extends "Ada_Drivers_Library/examples/shared/common/commo
 
    App_BUILD : Build_Type := external ("APP_BUILD", "Debug");
 
-   for Main use ("demo_sound_sensor");
+   for Main use ("demo_sound_pwm");
 
    for Runtime ("Ada") use STM32F407_Discovery'Runtime ("Ada");
 
