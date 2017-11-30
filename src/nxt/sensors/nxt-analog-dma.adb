@@ -81,7 +81,7 @@ package body NXT.Analog.DMA is
          This.Stream,
          Source      => Data_Register_Address (This.Converter.all),
          Destination => This.Raw_Value'Address,
-         Data_Count  => 1);  -- ie, 1 half-word
+         Data_Count  => 1);
       Start_Conversion (This.Converter.all);
    end Initialize;
 
@@ -104,7 +104,7 @@ package body NXT.Analog.DMA is
       then
          Successful := False;
       else
-         Reading := This.Raw_Value;
+         Reading := Integer (This.Raw_Value);
          Successful := True;
       end if;
    end Get_Raw_Reading;

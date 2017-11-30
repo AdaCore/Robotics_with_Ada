@@ -64,7 +64,7 @@ private
    type NXT_Analog_Sensor_DMA is new NXT_Analog_Sensor with record
       Controller : access DMA_Controller;
       Stream     : DMA_Stream_Selector;
-      Raw_Value  : Integer := 0 with Atomic;
+      Raw_Value  : UInt16 := 0 with Atomic;
    end record;
 
 end NXT.Analog.DMA;
