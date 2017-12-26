@@ -80,7 +80,7 @@ package NXT.Analog is
 
    procedure Initialize (This : in out NXT_Analog_Sensor);
    --  Initializes the input port/pin and the basics for the ADC itself, such
-   --  as the resolution and alignment, but does not do anything because
+   --  as the resolution and alignment, but does not do anything else because
    --  that will vary with the subclasses.
    --
    --  Must be overridden for concrete subclasses.
