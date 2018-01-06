@@ -58,6 +58,8 @@ procedure Demo_Motors is
    Throttle_Setting : NXT.Motors.Power_Level := 0;
    --  Power setting for controlling motor speed
 
+   Driven_Motor : NXT.Motors.Basic_Motor renames NXT_Shield.Motor1;  -- arbitrary
+
    Encoder_Sampling_Interval : constant Time_Span := Seconds (1);
    --  Sampling interval for computing encoder counts per second. You can
    --  change this but will then need to compute the rate per second.
@@ -140,11 +142,11 @@ begin
       if Throttle_Setting = 0 then
          All_Stop (Motor1);
       else
-         Motor1.Engage (Forward, Power => Throttle_Setting);
+         Driven_Motor.Engage (Forward, Power => Throttle_Setting);
       end if;
 
       --  note that the following function call delays for the Sample_Interval
-      case Encoder_Delta (Motor1, Sample_Interval => Encoder_Sampling_Interval) is
+      case Encoder_Delta (Driven_Motor, Sample_Interval => Encoder_Sampling_Interval) is
          when Stopped  => All_LEDs_Off;
          when Slow     => Blue_LED.Set;
          when Cruising => Green_LED.Set;
