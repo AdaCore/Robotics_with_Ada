@@ -62,8 +62,7 @@ package NXT.Motors is
      (This      : in out Basic_Motor;
       Direction : Directions;
       Power     : Power_Level)
-   with Post => Throttle (This) = Power and
-                Rotation_Direction (This) = Direction;
+   with Post => Throttle (This) = Power;
 
    procedure Engage
      (This       : in out Basic_Motor;
