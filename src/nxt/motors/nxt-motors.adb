@@ -70,34 +70,33 @@ package body NXT.Motors is
       This.Power_Plant.Set_Duty_Cycle (Power);
    end Engage;
 
-   ------------
-   -- Engage --
-   ------------
+   ---------------
+   -- Rotate_To --
+   ---------------
 
-   procedure Engage
+   procedure Rotate_To
      (This       : in out Basic_Motor;
-      Direction  : Directions;
-      Power      : Power_Level;
       Target     : Motor_Encoder_Counts;
+      Power      : Power_Level;
       Stop_After : Boolean := True)
    is
+      Current_Count : constant Motor_Encoder_Counts := Encoder_Count (This);
    begin
-      case Direction is
-         when Forward =>
-            Engage (This, Forward, Power);
-            loop
-               exit when Encoder_Count (This) >= Target;
-            end loop;
-         when Backward =>
-            Engage (This, Backward, Power);
-            loop
-               exit when Encoder_Count (This) <= Target;
-            end loop;
-      end case;
+      if Target > Current_Count then
+         Engage (This, Forward, Power);
+         loop
+            exit when Encoder_Count (This) >= Target;
+         end loop;
+      elsif Target < Current_Count then
+         Engage (This, Backward, Power);
+         loop
+            exit when Encoder_Count (This) <= Target;
+         end loop;
+      end if;
       if Stop_After then
          Stop (This);
       end if;
-   end Engage;
+   end Rotate_To;
 
    ----------
    -- Stop --

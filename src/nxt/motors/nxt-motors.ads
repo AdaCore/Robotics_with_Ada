@@ -64,21 +64,14 @@ package NXT.Motors is
       Power     : Power_Level)
    with Post => Throttle (This) = Power;
 
-   procedure Engage
+   procedure Rotate_To
      (This       : in out Basic_Motor;
-      Direction  : Directions;
-      Power      : Power_Level;
       Target     : Motor_Encoder_Counts;
+      Power      : Power_Level;
       Stop_After : Boolean := True)
    with Post =>
-       (case Direction is
-           when Forward  => Encoder_Count (This) >= Target,
-           when Backward => Encoder_Count (This) <= Target)
-       and
-       Rotation_Direction (This) = Direction
-       and
        (if Stop_After
-        then Throttle (This) = 0
+        then Throttle (This) = 100
         else Throttle (This) = Power);
 
    procedure Stop (This : in out Basic_Motor) with
