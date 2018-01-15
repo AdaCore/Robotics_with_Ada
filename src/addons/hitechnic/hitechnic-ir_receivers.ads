@@ -38,14 +38,14 @@
 --  and everything is working as expected, these are the only possible values
 --  for the data. Other controllers may provide other values.
 --
---     Momentary_Pressed_Forward  : constant := 16#64#;
---     Momentary_Pressed_Backward : constant := 16#80#;
+--     Momentary_Pressed_Forward  : constant := +100;
+--     Momentary_Pressed_Backward : constant := -100;
 --     Momentary_Not_Pressed      : constant := 0;
 --
 --  * https://shop.lego.com/en-US/LEGO-Power-Functions-IR-Remote-Control-8885
 
 with NXT.Digital; use NXT.Digital;
-with HAL;         use HAL;
+with Interfaces;
 
 package HiTechnic.IR_Receivers is
 
@@ -53,7 +53,9 @@ package HiTechnic.IR_Receivers is
 
    type Channel_Id is range 1 .. 4;
 
-   type Raw_Sensor_Values is array (Channel_Id) of UInt8;
+   type Switch_Value is new Interfaces.Integer_8;
+
+   type Raw_Sensor_Values is array (Channel_Id) of Switch_Value;
 
    type Raw_Sensor_Data is record
      A : Raw_Sensor_Values;

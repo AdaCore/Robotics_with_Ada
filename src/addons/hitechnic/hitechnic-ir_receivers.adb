@@ -28,8 +28,13 @@
 --   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.   --
 --                                                                          --
 ------------------------------------------------------------------------------
+with Ada.Unchecked_Conversion;
+with HAL;  use HAL;
 
 package body HiTechnic.IR_Receivers is
+
+   function As_Switch_Value is new Ada.Unchecked_Conversion
+     (Source => UInt8, Target => Switch_Value);
 
    ------------------
    -- Get_Raw_Data --
@@ -45,14 +50,14 @@ package body HiTechnic.IR_Receivers is
       This.Read_Register (Data_Registers, Response, IO_Successful);
       --  reading the one register will reply with multiple bytes in response
       if IO_Successful then
-         Data.A (1) := Response (1);
-         Data.B (1) := Response (2);
-         Data.A (2) := Response (3);
-         Data.B (2) := Response (4);
-         Data.A (3) := Response (5);
-         Data.B (3) := Response (6);
-         Data.A (4) := Response (7);
-         Data.B (4) := Response (8);
+         Data.A (1) := As_Switch_Value (Response (1));
+         Data.B (1) := As_Switch_Value (Response (2));
+         Data.A (2) := As_Switch_Value (Response (3));
+         Data.B (2) := As_Switch_Value (Response (4));
+         Data.A (3) := As_Switch_Value (Response (5));
+         Data.B (3) := As_Switch_Value (Response (6));
+         Data.A (4) := As_Switch_Value (Response (7));
+         Data.B (4) := As_Switch_Value (Response (8));
       else
          Data := (others => (others => 0));
       end if;
