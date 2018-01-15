@@ -94,7 +94,7 @@ procedure Demo_IR_Receiver is
    Receiver : IR_Receiver (IR_Sensor_Address);
 
    Momentary_Pressed_Forward  : constant := 100;
-   Momentary_Pressed_Backward : constant := 156;
+   Momentary_Pressed_Backward : constant := -100;
 
    procedure Reflect_User_Input (Sensor : in out IR_Receiver);
    --  Sets or clears the four LEDs on the F4 Disco board based on
