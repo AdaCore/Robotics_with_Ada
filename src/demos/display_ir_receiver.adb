@@ -39,11 +39,11 @@
 
 --  Note that pull-up resistors are required for the two I2C lines. 10K works.
 
---  When used with that controller these are the only possible values for the
---  data. Other controllers may provide other values.
+--  When used with the 8885 controller these are the only possible values for
+--  the data.
 --
---     Momentary_Pressed_Forward  : constant := 100;
---     Momentary_Pressed_Backward : constant := 156;
+--     Momentary_Pressed_Forward  : constant := +100;
+--     Momentary_Pressed_Backward : constant := -100;
 --     Momentary_Not_Pressed      : constant := 0;
 
 with Last_Chance_Handler;  pragma Unreferenced (Last_Chance_Handler);
@@ -78,6 +78,10 @@ procedure Display_IR_Receiver is
 
    Sensor : IR_Receiver (IR_Sensor_Address);
 
+   Switches           : Raw_Sensor_Data;
+   IO_Successful      : Boolean;
+
+
    procedure Show_Device_Info;
    --  Calls Put_Line to print the product id, sensor type, and version info.
    --  Expected output:
@@ -90,13 +94,6 @@ procedure Display_IR_Receiver is
    --  The following are using the LEGO® Power Functions IR Remote Control,
    --  with channel 1 selected. Selecting the other channels will make the
    --  output change for those other values indicated below.
-   --
-   --  Expected output when no controller actuations:
-   --      A1: 0, A2: 0, A3: 0, A4: 0, B1: 0, B2: 0, B3: 0, B4: 0
-   --  Expected output when both controller momentary switches are forward:
-   --      A1: 100, A2: 0, A3: 0, A4: 0, B1: 100, B2: 0, B3: 0, B4: 0
-   --  Expected output when both controller momentary switches are forward:
-   --      A1: 156, A2: 0, A3: 0, A4: 0, B1: 156, B2: 0, B3: 0, B4: 0
 
    ----------------------
    -- Show_Device_Info --
@@ -133,13 +130,9 @@ procedure Display_IR_Receiver is
    --------------------------
 
    procedure Show_Device_Readings is
-      Switches      : Raw_Sensor_Data;
-      IO_Successful : Boolean;
    begin
       Sensor.Get_Raw_Data (Switches, IO_Successful);
       if IO_Successful then
-         STM32.Board.Turn_Off (Orange_LED);
-
          Put_Line ("A1:" & Switches.A (1)'Img & ", " &
                    "A2:" & Switches.A (2)'Img & ", " &
                    "A3:" & Switches.A (3)'Img & ", " &
@@ -148,8 +141,6 @@ procedure Display_IR_Receiver is
                    "B2:" & Switches.B (2)'Img & ", " &
                    "B3:" & Switches.B (3)'Img & ", " &
                    "B4:" & Switches.B (4)'Img);
-      else
-         STM32.Board.Turn_On (Orange_LED);
       end if;
    end Show_Device_Readings;
 
