@@ -6,7 +6,7 @@ project Demo_IR_Receiver extends "Ada_Drivers_Library/examples/shared/common/com
 
    App_BUILD : Build_Type := external ("APP_BUILD", "Debug");
 
-   for Main use ("demo_ir_receiver");
+   for Main use ("demo_ir_receiver", "display_ir_receiver");
 
    for Runtime ("Ada") use STM32F407_Discovery'Runtime ("Ada");
 
