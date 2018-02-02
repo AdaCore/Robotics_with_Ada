@@ -39,7 +39,21 @@ package body NXT_Shield is
 
    PWM_Frequency : constant := 490;
 
+   Sonar_Clock_Pin : GPIO_Point renames PB13;  -- SCL
+   Sonar_Data_Pin  : GPIO_Point renames PB11;  -- SDA
+   --  The choice of pins is largely arbitrary because we are bit-banging the
+   --  I/O instead of using an ob-board I2C device. Nonetheless, the internal
+   --  pull-up resistor values are not the same across all pins. Specifically,
+   --  PB10 and PB12 have approximately 11K pull-up resistors, whereas the
+   --  other pins have approximately 40K pull-up resistors. See table 47
+   --  "I/O Static Characteristics" in the STM32F405xx STM32F407xx Datasheet.
+
+   -------------------------
+   -- Initialize_Hardware --
+   -------------------------
+
    procedure Initialize_Hardware is
+      Successful : Boolean;
    begin
       Motor1.Initialize
         (Encoder_Input1       => PA15,
@@ -70,6 +84,15 @@ package body NXT_Shield is
 
          Polarity1            => PA2,
          Polarity2            => PA3);
+
+      Sonar.Configure
+        (Data_Line       => Sonar_Data_Pin,
+         Clock_Line      => Sonar_Clock_Pin,
+         Clock_Frequency => 9600,
+         Success         => Successful);
+      if not Successful then
+         raise Program_Error with "Sonar init";
+      end if;
    end Initialize_Hardware;
 
 end NXT_Shield;

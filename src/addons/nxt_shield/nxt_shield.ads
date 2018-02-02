@@ -1,6 +1,6 @@
 ------------------------------------------------------------------------------
 --                                                                          --
---                    Copyright (C) 2017, AdaCore                           --
+--                  Copyright (C) 2017-2018, AdaCore                        --
 --                                                                          --
 --  Redistribution and use in source and binary forms, with or without      --
 --  modification, are permitted provided that the following conditions are  --
@@ -113,13 +113,24 @@
 --  The timers and GPIO points above should not be used for any other driver
 --  interface, as long as this package is used in the same executable.
 
-with NXT.Motors;  use NXT.Motors;
+--        Sonar_Clock_Pin : GPIO_Point renames PB13;  -- SCL
+--        Sonar_Data_Pin  : GPIO_Point renames PB11;  -- SDA
+--  The choice of pins is largely arbitrary because we are bit-banging the
+--  I/O instead of using an ob-board I2C device. Nonetheless, the internal
+--  pull-up resistor values are not the same across all pins. See table 47
+--  "I/O Static Characteristics" in the STM32F405xx STM32F407xx Datasheet.
+
+
+with NXT.Motors;             use NXT.Motors;
+with NXT.Ultrasonic_Sensors; use NXT.Ultrasonic_Sensors;
 
 package NXT_Shield is
    pragma Elaborate_Body;
 
    Motor1 : Basic_Motor;
    Motor2 : Basic_Motor;
+
+   Sonar : Ultrasonic_Sonar_Sensor (Hardware_Device_Address => 1);
 
    procedure Initialize_Hardware;
 
