@@ -1,6 +1,6 @@
 ------------------------------------------------------------------------------
 --                                                                          --
---                      Copyright (C) 2017, AdaCore                         --
+--                   Copyright (C) 2017-2018, AdaCore                       --
 --                                                                          --
 --  Redistribution and use in source and binary forms, with or without      --
 --  modification, are permitted provided that the following conditions are  --
@@ -30,6 +30,13 @@
 ------------------------------------------------------------------------------
 
 package body NXT.Touch_Sensors is
+
+   -----------------------
+   -- Currently_Pressed --
+   -----------------------
+
+   function Currently_Pressed (This : Touch_Sensor) return Boolean is
+     (This.Active_Indicated);
 
    -------------------
    -- Await_Pressed --

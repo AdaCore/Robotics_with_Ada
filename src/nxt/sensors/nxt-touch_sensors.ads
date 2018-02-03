@@ -1,6 +1,6 @@
 ------------------------------------------------------------------------------
 --                                                                          --
---                      Copyright (C) 2017, AdaCore                         --
+--                   Copyright (C) 2017-2018, AdaCore                       --
 --                                                                          --
 --  Redistribution and use in source and binary forms, with or without      --
 --  modification, are permitted provided that the following conditions are  --
@@ -37,6 +37,8 @@ package NXT.Touch_Sensors is
    type Touch_Sensor (Pin : access GPIO_Point; Active : Logic_Levels) is
      tagged private;
    --  A sensor consisting of a momentary button switch on the front.
+
+   function Currently_Pressed (This : Touch_Sensor) return Boolean;
 
    procedure Await_Pressed (This : in out Touch_Sensor);
    --  Wait for the sensor button to be pressed.
