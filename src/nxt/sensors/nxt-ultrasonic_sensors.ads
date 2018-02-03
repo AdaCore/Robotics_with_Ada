@@ -70,11 +70,13 @@ package NXT.Ultrasonic_Sensors is
    --  to do with it. We ignore it.
 
    procedure Enable
-     (This : in out Ultrasonic_Sonar_Sensor;
-      Mode :        Scan_Modes := Continuous)
+     (This          : in out Ultrasonic_Sonar_Sensor;
+      Mode          : Scan_Modes := Continuous;
+      IO_Successful : out Boolean)
    with
      Pre  => Configured (This),
-     Post => Enabled (This) and
+     Post => IO_Successful and then
+             Enabled (This) and then
              Current_Scan_Mode (This) = Mode;
 
    type Centimeters is range 0 .. 255;
@@ -83,15 +85,19 @@ package NXT.Ultrasonic_Sensors is
    --  Everthing is working as expected but nothing is currently detected
 
    procedure Get_Distance
-     (This    : in out Ultrasonic_Sonar_Sensor;
-      Reading :    out Centimeters)
+     (This          : in out Ultrasonic_Sonar_Sensor;
+      Reading       : out Centimeters;
+      IO_Successful : out Boolean)
    with Pre => Configured (This) and
                Enabled (This)  and
                Current_Scan_Mode (This) = Continuous;
    --  Get the latest single distance reading from the sensor, if any object
    --  is detected within range. Will return 255 if no object is detected.
 
-   procedure Ping (This : in out Ultrasonic_Sonar_Sensor) with
+   procedure Ping
+     (This          : in out Ultrasonic_Sonar_Sensor;
+      IO_Successful : out Boolean)
+   with
      Pre => Configured (This) and
             Enabled (This) and
             Current_Scan_Mode (This) = On_Demand;
@@ -101,19 +107,21 @@ package NXT.Ultrasonic_Sensors is
    type Distances is array (Distances_Index range <>) of Centimeters;
 
    procedure Get_Distances
-     (This      : in out Ultrasonic_Sonar_Sensor;
-      Readings  : out Distances;
-      Actual    : out Natural)
+     (This          : in out Ultrasonic_Sonar_Sensor;
+      Readings      : out Distances;
+      Actual        : out Natural;
+      IO_Successful : out Boolean)
    with Pre => Configured (This) and
                Enabled (This) and
                Current_Scan_Mode (This) = On_Demand;
 
    procedure Get_Distances
-     (This      : in out Ultrasonic_Sonar_Sensor;
-      Requested : Distances_Index;
-      Offset    : Natural;
-      Readings  : out Distances;
-      Actual    : out Natural)
+     (This          : in out Ultrasonic_Sonar_Sensor;
+      Requested     : Distances_Index;
+      Offset        : Natural;
+      Readings      : out Distances;
+      Count         : out Natural;
+      IO_Successful : out Boolean)
    with Pre => Configured (This) and
                Enabled (This) and
                Current_Scan_Mode (This) = On_Demand;
@@ -126,7 +134,7 @@ package NXT.Ultrasonic_Sensors is
    --  Offset: the offset within Readings at which new distance values should
    --  start being placed.
    --  Readings: the object containing the new distances returned.
-   --  Actual: the number of objects detected and thus the number of distances
+   --  Count: the number of objects detected and thus the number of distances
    --  assigned in Readings. Will be zero when no object is detected within
    --  range.
 

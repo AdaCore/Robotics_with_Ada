@@ -31,8 +31,6 @@
 
 with STM32.Device;  use STM32.Device;
 
-with STM32.Board; use STM32.Board; ---  for testing only...
-
 package body NXT.Ultrasonic_Sensors is
 
    ---------------
@@ -62,11 +60,13 @@ package body NXT.Ultrasonic_Sensors is
    -- Ping --
    ----------
 
-   procedure Ping (This : in out Ultrasonic_Sonar_Sensor) is
-      Success  : Boolean;
+   procedure Ping
+     (This          : in out Ultrasonic_Sonar_Sensor;
+      IO_Successful : out Boolean)
+   is
    begin
       delay until This.Next_Command_Time;
-      Write_Register (This, Mode_Register, Ping_Command, Success);
+      Write_Register (This, Mode_Register, Ping_Command, IO_Successful);
       This.Next_Command_Time := Clock + Delay_Data_Ping;
    end Ping;
 
@@ -75,13 +75,13 @@ package body NXT.Ultrasonic_Sensors is
    ------------------
 
    procedure Get_Distance
-     (This    : in out Ultrasonic_Sonar_Sensor;
-      Reading :    out Centimeters)
+     (This          : in out Ultrasonic_Sonar_Sensor;
+      Reading       : out Centimeters;
+      IO_Successful : out Boolean)
    is
-      Success : Boolean;
    begin
       delay until This.Next_Command_Time;
-      Read_Register (This, Distance_Register, UInt8 (Reading), Success);
+      Read_Register (This, Distance_Register, UInt8 (Reading), IO_Successful);
       This.Next_Command_Time := Clock + Delay_Data_Other;
    end Get_Distance;
 
@@ -90,13 +90,14 @@ package body NXT.Ultrasonic_Sensors is
    -------------------
 
    procedure Get_Distances
-     (This      : in out Ultrasonic_Sonar_Sensor;
-      Readings  : out Distances;
-      Actual    : out Natural)
+     (This          : in out Ultrasonic_Sonar_Sensor;
+      Readings      : out Distances;
+      Actual        : out Natural;
+      IO_Successful : out Boolean)
    is
       Use_First_Index : constant := 0;
    begin
-      Get_Distances (This, Readings'Length, Use_First_Index, Readings, Actual);
+      Get_Distances (This, Readings'Length, Use_First_Index, Readings, Actual, IO_Successful);
    end Get_Distances;
 
    -------------------
@@ -104,15 +105,14 @@ package body NXT.Ultrasonic_Sensors is
    -------------------
 
    procedure Get_Distances
-     (This      : in out Ultrasonic_Sonar_Sensor;
-      Requested : Distances_Index;
-      Offset    : Natural;
-      Readings  : out Distances;
-      Actual    : out Natural)
+     (This          : in out Ultrasonic_Sonar_Sensor;
+      Requested     : Distances_Index;
+      Offset        : Natural;
+      Readings      : out Distances;
+      Count         : out Natural;
+      IO_Successful : out Boolean)
    is
-      Incoming    : aliased Sequence (Distances_Index);
-      Success     :  Boolean;
-
+      Incoming        : aliased Sequence (Distances_Index);
       Readings_Offset : constant Natural := Readings'First - Incoming'First;
       --  we don't know that the actual for Readings uses a 1-based index
    begin
@@ -121,13 +121,13 @@ package body NXT.Ultrasonic_Sensors is
         (This,
          First_Register => Distance_Register,
          Data           => Incoming,
-         Successful     => Success);
-      Actual := 0;
-      if Success then
+         Successful     => IO_Successful);
+      Count := 0;
+      if IO_Successful then
          for K in 1 .. Requested loop
             exit when Incoming (K) = UInt8 (Nothing_Detected);
             Readings (K + Offset + Readings_Offset) := Centimeters (Incoming (K));
-            Actual := Actual + 1;
+            Count := Count + 1;
          end loop;
       end if;
       This.Next_Command_Time := Clock + Delay_Data_Other;
@@ -145,25 +145,25 @@ package body NXT.Ultrasonic_Sensors is
    ------------
 
    procedure Enable
-     (This : in out Ultrasonic_Sonar_Sensor;
-      Mode : Scan_Modes := Continuous)
+     (This          : in out Ultrasonic_Sonar_Sensor;
+      Mode          : Scan_Modes := Continuous;
+      IO_Successful : out Boolean)
    is
-      Successful : Boolean;
    begin
       if Mode = Continuous then
          --  go into continuous can mode
          delay until This.Next_Command_Time;
-         Write_Register (This, Mode_Register, Enter_Continuous_Measurement_Mode, Successful);
+         Write_Register (This, Mode_Register, Enter_Continuous_Measurement_Mode, IO_Successful);
          This.Next_Command_Time := Clock + Command_Delay;
       else
          --  we don't issue a command in this mode, until we want to get a
          --  reading, so we will issue a "ping" then
-         Successful := True;
+         IO_Successful := True;
       end if;
-      if Successful then
+      if IO_Successful then
          This.Mode := Mode;
       end if;
-      This.Enabled := Successful;
+      This.Enabled := IO_Successful;
    end Enable;
 
    -----------------------
@@ -438,13 +438,11 @@ package body NXT.Ultrasonic_Sensors is
    begin
       This.Begin_Transmission (This.Device_Address, Successful);
       if not Successful then
-         STM32.Board.Turn_On (Red_LED);  -- for testing only
          return;
       end if;
 
       This.Write (UInt8 (Register), Successful);
       if not Successful then
-         STM32.Board.Turn_On (Orange_LED);  -- for testing only
          return;
       end if;
 
@@ -458,10 +456,6 @@ package body NXT.Ultrasonic_Sensors is
          Quantity       => Data'Length,
          Acknowledged   => Successful,
          Send_Stop      => True);
-
-      if not Successful then
-         STM32.Board.Turn_On (Blue_LED);  -- for testing only
-      end if;
    end Read_Register;
 
    -------------------------------
@@ -499,13 +493,11 @@ package body NXT.Ultrasonic_Sensors is
    begin
       This.Begin_Transmission (This.Device_Address, Successful);
       if not Successful then
-         STM32.Board.Turn_On (Red_LED);  -- for testing only
          return;
       end if;
 
       This.Write (UInt8 (Register) & Data, Successful);
       if not Successful then
-         STM32.Board.Turn_On (Orange_LED);  -- for testing only
          return;
       end if;
 

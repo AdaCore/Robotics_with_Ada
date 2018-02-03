@@ -102,7 +102,7 @@ begin
    end if;
 
 --     Sonar.Enable (Mode => On_Demand);  -- default scan mode is Continuous
-   Sonar.Enable (Mode => Continuous);
+   Sonar.Enable (Mode => Continuous, IO_Successful => Successful);
 
    for Attempt in 1 .. Max_Attempts loop
       Sonar.Warm_Restart (Successful);
@@ -164,7 +164,7 @@ begin
 --           Num_Detected : Natural;
 --        begin
 --           Sonar.Ping;
---           Sonar.Get_Distances (Readings, Num_Detected);
+--           Sonar.Get_Distances (Readings, Num_Detected, Successful);
 --           --  We put all the values, instead of the slice 1 .. Num_Detected,
 --           --  because the semihosting version of Put seems to print the output
 --           --  with a newline anyway, therefore we use one call to Put_Line.
@@ -183,7 +183,7 @@ begin
          Distance : Centimeters;
       begin
          --  assuming we are in Continuous mode...
-         Sonar.Get_Distance (Distance);
+         Sonar.Get_Distance (Distance, Successful);
          Put_Line (Distance'Img);
       end;
 
