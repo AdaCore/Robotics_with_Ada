@@ -36,7 +36,10 @@ package body Math_Utilities is
    return T is
      ((Value - Range_Min) * (Domain_Max - Domain_Min) / (Range_Max - Range_Min) + Domain_Min);
 
-   function Bounded_Value (Value, Low, High : T) return T is
+   function Bounded_Integer_Value (Value, Low, High : T) return T is
+     (if Value < Low then Low elsif Value > High then High else Value);
+
+   function Bounded_Floating_Value (Value, Low, High : T) return T is
      (if Value < Low then Low elsif Value > High then High else Value);
 
 end Math_Utilities;

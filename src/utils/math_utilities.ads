@@ -43,7 +43,14 @@ package Math_Utilities is
 
    generic
       type T is range <>;
-   function Bounded_Value (Value, Low, High : T)
+   function Bounded_Integer_Value (Value, Low, High : T)
+   return T
+   with Inline;
+   --  Constrains the input value to the range Low .. High
+
+   generic
+      type T is digits <>;
+   function Bounded_Floating_Value (Value, Low, High : T)
    return T
    with Inline;
    --  Constrains the input value to the range Low .. High
