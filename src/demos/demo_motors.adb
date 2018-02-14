@@ -45,6 +45,7 @@ with STM32.Board;       use STM32.Board;
 with NXT.Touch_Sensors; use NXT.Touch_Sensors;
 with NXT.Motors;        use NXT.Motors;
 with NXT_Shield;        use NXT_Shield;
+with Initialize_NXT_Shield;
 with Discrete_Inputs;
 
 with Ada.Real_Time;     use Ada.Real_Time;
@@ -130,7 +131,7 @@ procedure Demo_Motors is
 
 begin
    NXT_Button.Initialize_Hardware;
-   NXT_Shield.Initialize_Hardware;
+   Initialize_NXT_Shield;
    STM32.Board.Initialize_LEDs;
    STM32.Board.All_LEDs_Off;
 
