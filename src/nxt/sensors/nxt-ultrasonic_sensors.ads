@@ -106,6 +106,8 @@ package NXT.Ultrasonic_Sensors is
 
    type Distances is array (Distances_Index range <>) of Centimeters;
 
+   subtype All_Distances is Distances (Distances_Index);
+
    procedure Get_Distances
      (This          : in out Ultrasonic_Sonar_Sensor;
       Readings      : out Distances;
