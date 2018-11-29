@@ -34,16 +34,6 @@
 --
 --  http://www.hitechnic.com/cgi-bin/commerce.cgi?preadd=action&key=nir1032
 
---  When the sensor is driven by the LEGO® Power Functions IR Remote Control*
---  and everything is working as expected, these are the only possible values
---  for the data. Other controllers may provide other values.
---
---     Momentary_Pressed_Forward  : constant := +100;
---     Momentary_Pressed_Backward : constant := -100;
---     Momentary_Not_Pressed      : constant := 0;
---
---  * https://shop.lego.com/en-US/LEGO-Power-Functions-IR-Remote-Control-8885
-
 with NXT.Digital; use NXT.Digital;
 with Interfaces;
 
