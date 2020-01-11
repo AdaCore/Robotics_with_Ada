@@ -31,13 +31,25 @@
 
 package body Math_Utilities is
 
+   -----------------------------
+   -- Range_To_Domain_Mapping --
+   -----------------------------
+
    function Range_To_Domain_Mapping
      (Value, Range_Min, Range_Max, Domain_Min, Domain_Max : T)
    return T is
      ((Value - Range_Min) * (Domain_Max - Domain_Min) / (Range_Max - Range_Min) + Domain_Min);
 
+   ---------------------------
+   -- Bounded_Integer_Value --
+   ---------------------------
+
    function Bounded_Integer_Value (Value, Low, High : T) return T is
      (if Value < Low then Low elsif Value > High then High else Value);
+
+   ----------------------------
+   -- Bounded_Floating_Value --
+   ----------------------------
 
    function Bounded_Floating_Value (Value, Low, High : T) return T is
      (if Value < Low then Low elsif Value > High then High else Value);
