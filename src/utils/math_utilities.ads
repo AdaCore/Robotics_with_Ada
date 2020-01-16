@@ -57,6 +57,16 @@ package Math_Utilities is
    --  Constrains the input value to the range Low .. High
 
    generic
+      type T is range <>;
+   procedure Bound_Integer_Value
+     (Value : in out T; Low, High : T)
+   with
+     Pre  => Low < High,
+     Post => Value in Low .. High,
+     Inline;
+   --  Constrains the input value to the range Low .. High
+
+   generic
       type T is digits <>;
    function Bounded_Floating_Value
      (Value, Low, High : T)

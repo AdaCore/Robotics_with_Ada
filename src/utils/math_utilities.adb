@@ -47,6 +47,19 @@ package body Math_Utilities is
    function Bounded_Integer_Value (Value, Low, High : T) return T is
      (if Value < Low then Low elsif Value > High then High else Value);
 
+   -------------------------
+   -- Bound_Integer_Value --
+   -------------------------
+
+   procedure Bound_Integer_Value (Value : in out T; Low, High : T) is
+   begin
+      if Value < Low then
+         Value := Low;
+      elsif Value > High then
+         Value := High;
+      end if;
+   end Bound_Integer_Value;
+
    ----------------------------
    -- Bounded_Floating_Value --
    ----------------------------
