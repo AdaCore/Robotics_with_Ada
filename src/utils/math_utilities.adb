@@ -54,4 +54,17 @@ package body Math_Utilities is
    function Bounded_Floating_Value (Value, Low, High : T) return T is
      (if Value < Low then Low elsif Value > High then High else Value);
 
+   --------------------------
+   -- Bound_Floating_Value --
+   --------------------------
+
+   procedure Bound_Floating_Value (Value : in out T; Low, High : T) is
+   begin
+      if Value < Low then
+         Value := Low;
+      elsif Value > High then
+         Value := High;
+      end if;
+   end Bound_Floating_Value;
+
 end Math_Utilities;

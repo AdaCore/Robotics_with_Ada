@@ -67,4 +67,14 @@ package Math_Utilities is
      Inline;
    --  Constrains the input value to the range Low .. High
 
+   generic
+      type T is digits <>;
+   procedure Bound_Floating_Value
+     (Value : in out T; Low, High : T)
+   with
+     Pre  => Low < High,
+     Post => Value in Low .. High,
+     Inline;
+   --  Constrains the input value to the range Low .. High
+
 end Math_Utilities;
