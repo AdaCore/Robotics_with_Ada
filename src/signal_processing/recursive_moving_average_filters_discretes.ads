@@ -1,4 +1,4 @@
---  Recursive Moving Average (RMA) filters for any discrete sample (ie input)
+--  Recursive Moving Average (RMA) filters for any integer sample (ie input)
 --  type
 
 --  This implementation keeps a running total of the input values rather than
@@ -16,33 +16,35 @@ with Sequential_Bounded_Buffers;
 
 generic
 
-   type Sample is (<>);
+   type Sample is range <>;
    --  the type used for the input samples
-
-   type Output is digits <>;
-   --  the type used for the output average provided
 
    type Accumulator is range <>;
    --  the type used for the running total of inputs
 
 package Recursive_Moving_Average_Filters_Discretes is
 
+   pragma Compile_Time_Error
+      (Accumulator (Sample'First) < Accumulator'First or
+       Accumulator (Sample'Last) > Accumulator'Last,
+       "Accumulator range is insufficient for Sample");
+
    type RMA_Filter (Window_Size : Positive) is tagged limited private;
 
    procedure Insert (This : in out RMA_Filter;  New_Sample : Sample);
 
-   function Value (This : RMA_Filter) return Output with Inline;
+   function Value (This : RMA_Filter) return Sample with Inline;
 
    procedure Reset (This : out RMA_Filter);
 
 private
 
-   package Data is new Sequential_Bounded_Buffers (Sample, Default_Value => Sample'First);
-   use Data;
+   package Sample_Data is new Sequential_Bounded_Buffers (Element => Sample, Default_Value => 0);
+   use Sample_Data;
 
    type RMA_Filter (Window_Size : Positive) is tagged limited record
-      Samples        : Ring_Buffer (Window_Size);
-      Averaged_Value : Output := 0.0;
+      Samples        : Sample_Data.Ring_Buffer (Window_Size);
+      Averaged_Value : Sample := 0;
       Total          : Accumulator;
    end record;
 
