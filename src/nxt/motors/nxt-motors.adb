@@ -185,7 +185,7 @@ package body NXT.Motors is
 
       This.Power_Plant.Enable_Output;
 
-      This.Channel := PWM_Output_Channel;
+      This.PWM_Channel := PWM_Output_Channel;
 
       --  Now set up the motor encoders
 
