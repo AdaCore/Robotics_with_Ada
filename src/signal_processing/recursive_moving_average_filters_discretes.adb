@@ -21,14 +21,11 @@ package body Recursive_Moving_Average_Filters_Discretes is
       end if;
 
       if Full (This.Samples) then -- delete the oldest sample and update total
-         --  TODO: why not just call Get???
---           This.Total := This.Total - Accumulator (Next_Element_Out (This.Samples));
---           Delete (This.Samples, Count => 1);
          declare
-            Next : Sample;
+            Oldest : Sample;
          begin
-            Get (This.Samples, Next);
-            This.Total := This.Total - Accumulator (Next);
+            Get (This.Samples, Oldest);
+            This.Total := This.Total - Accumulator (Oldest);
          end;
       end if;
 
