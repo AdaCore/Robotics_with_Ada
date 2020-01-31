@@ -16,7 +16,7 @@ package body Recursive_Moving_Average_Filters_Reals is
       if Empty (This.Samples) then
          Put (This.Samples, New_Sample);
          This.Total := Accumulator (New_Sample);
-         This.Averaged_Value := Output (This.Total);
+         This.Averaged_Value := New_Sample;
          return;
       end if;
 
