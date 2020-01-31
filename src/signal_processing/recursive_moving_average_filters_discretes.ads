@@ -1,15 +1,15 @@
---  Recursive Moving Average (RMA) filters for any integer sample (ie input)
---  type
+--  Recursive Moving Average (RMA) filters for any integer sample (ie input and
+--  output) type.
 
---  This implementation keeps a running total of the input values rather than
---  iterating over the current inputs each time a new input sample is inserted
---  (in order to compute the running average). However, eventual overflow is
---  possible, given sufficiently large input sample values and a sufficiently
---  long executon time. Choose the generic actual type for the type Accumulator
---  accordingly.
+--  This implementation keeps a running total of the input values rather
+--  than iterating over the current inputs each time a new sample is inserted
+--  (in order to compute the running average). In cases that would lead to
+--  overflow,the total is limited to Accumulator'First or Accumulator'Last.
+--  The average returned from function Value is limited to Sample'First or
+--  Sample'Last.
 
---  This design assums new input sample values are acquired one at a time,
---  and thus inserted into Filter objects individually. These Filter objects
+--  This design assums new input sample values are acquired one at a time, and
+--  thus inserted into RMA_Filter objects individually. These RMA_Filter objects
 --  maintain their own buffers, of the size specified by their discriminant.
 
 with Sequential_Bounded_Buffers;
@@ -17,21 +17,25 @@ with Sequential_Bounded_Buffers;
 generic
 
    type Sample is range <>;
-   --  the type used for the input samples
+   --  The type used for the input samples and output averages.
 
    type Accumulator is range <>;
-   --  the type used for the running total of inputs
+   --  The type used for the running total of inputs. The intent is that this
+   --  type has a larger range than that of type Sample, so that a larger total
+   --  can be accomodated.
+
+   --  For both types, null ranges are not allowed. We check that with the
+   --  Compile_Time_Error pragmas below.
 
 package Recursive_Moving_Average_Filters_Discretes is
 
    pragma Compile_Time_Error
-      (Sample'Size * 2 > Accumulator'Size,
-       "Accumulator size should be twice that of Sample");
+      (Sample'First > Sample'Last,
+       "Sample range must not be null");
 
    pragma Compile_Time_Error
-      (Sample'First >= Sample'Last or
-       Accumulator'First >= Accumulator'Last,
-       "Accumulator and Sample ranges must not be null");
+      (Accumulator'First > Accumulator'Last,
+       "Accumulator range must not be null");
 
    subtype Filter_Window_Size is Integer range 1 .. Integer'Last / 2;
 
