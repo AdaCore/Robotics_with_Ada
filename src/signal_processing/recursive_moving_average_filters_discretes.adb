@@ -2,11 +2,13 @@ with Math_Utilities;
 
 package body Recursive_Moving_Average_Filters_Discretes is
 
-   procedure Add (Value : Sample; To : in out Accumulator) with Inline;
-   --  Add sample (which can be negative) to To, without overflowing
+   procedure Safely_Add (Value : Sample; To : in out Accumulator) with Inline;
+   --  Add sample Value (which can be negative) to the value of To, without
+   --  overflowing
 
-   procedure Subtract (Value : Sample; From : in out Accumulator) with Inline;
-   --  Subtract sample (which can be negative) from From, without overflowing
+   procedure Safely_Subtract (Value : Sample; From : in out Accumulator) with Inline;
+   --  Subtract sample Value (which can be negative) from the value of From,
+   --  without overflowing
 
    -----------
    -- Value --
@@ -36,31 +38,31 @@ package body Recursive_Moving_Average_Filters_Discretes is
       end if;
 
       if Full (This.Samples) then
-         --  Delete the oldest sample and remove its value from total (so that
-         --  we never have to iterate over all the samples in order to calculate
-         --  a new total.
+         --  Delete the oldest sample and remove its value from total (rather
+         --  than iterate over all the samples in order to calculate a new
+         --  total.
          declare
             Oldest : Sample;
          begin
             Get (This.Samples, Oldest);
-            Subtract (Oldest, From => This.Total);
+            Safely_Subtract (Oldest, From => This.Total);
          end;
       end if;
 
       Put (This.Samples, New_Sample);
 
-      Add (New_Sample, To => This.Total);
+      Safely_Add (New_Sample, To => This.Total);
 
       Average := This.Total / Accumulator (Extent (This.Samples));
       Limit (Average, Accumulator (Sample'First), Accumulator (Sample'Last));
       This.Averaged_Value := Sample (Average);
    end Insert;
 
-   ---------
-   -- Add --
-   ---------
+   ----------------
+   -- Safely_Add --
+   ----------------
 
-   procedure Add (Value : Sample; To : in out Accumulator) is
+   procedure Safely_Add (Value : Sample; To : in out Accumulator) is
    begin
       if Value > 0 then
          if To <= Accumulator'Last - Accumulator (Value) then
@@ -75,13 +77,13 @@ package body Recursive_Moving_Average_Filters_Discretes is
             To := Accumulator'First;
          end if;
       end if;
-   end Add;
+   end Safely_Add;
 
-   --------------
-   -- Subtract --
-   --------------
+   ---------------------
+   -- Safely_Subtract --
+   ---------------------
 
-   procedure Subtract  (Value : Sample; From : in out Accumulator) is
+   procedure Safely_Subtract (Value : Sample; From : in out Accumulator) is
    begin
       if Value > 0 then
          if From >= Accumulator'First + Accumulator (Value) then
@@ -96,7 +98,7 @@ package body Recursive_Moving_Average_Filters_Discretes is
             From := Accumulator'Last;
          end if;
       end if;
-   end Subtract;
+   end Safely_Subtract;
 
    -----------
    -- Reset --
