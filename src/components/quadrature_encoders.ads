@@ -30,7 +30,7 @@
 ------------------------------------------------------------------------------
 
 --  This package provides an interface to a quadrature motor encoder (so
---  stricly speaking is is a decoder). It uses the specific capabilities of
+--  stricly speaking it is a decoder). It uses the specific capabilities of
 --  selected ST Micro timers to perform this function, thereby relieving the
 --  MCU of having to do so (eg via interrupts). The timer essentially acts as
 --  an externally clocked counter, driven by the two discrete inputs. All that
@@ -39,9 +39,10 @@
 --  especially Application Note AN4013 (DM00042534). See also the RM (RM0090),
 --  section 18.3.12 for discussion.
 --
---  Note that the encoder count is provided as a value of type UInt32, ie 32
---  bits, but the value may only be 16-bits wide, depending on the timer
---  selected when calling Initialize.
+--  Note that the encoder count is provided as a value of type UInt32, ie
+--  32 bits, but the value may only be 16-bits wide, depending on the timer
+--  selected when calling Initialize. We ensure that 32 bits are actually
+--  provided by the timer via the precondition on the initialization routine.
 
 with STM32.GPIO;   use STM32.GPIO;
 with STM32.Timers; use STM32.Timers;
@@ -55,8 +56,6 @@ package Quadrature_Encoders is
 
    function Current_Count (This : Rotary_Encoder) return UInt32
      with Inline;
-   --  We ensure that 32 bits are actually provided by the timer via the
-   --  precondition on the initialization routine.
 
    procedure Reset_Count (This : in out Rotary_Encoder) with
      Inline,
