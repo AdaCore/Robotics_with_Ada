@@ -53,7 +53,7 @@ package NXT.Motors is
 
    function Rotation_Direction (This : Basic_Motor) return Directions;
 
-   type Motor_Encoder_Counts is range -2 ** 31 .. 2 ** 31 - 1;
+   type Motor_Encoder_Counts is range -(2 ** 31) .. +(2 ** 31 - 1);
 
    Encoder_Counts_Per_Revolution : constant := 720;
    --  Thus 1/2 degree resolution
