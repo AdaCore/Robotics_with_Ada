@@ -1,15 +1,17 @@
---  This package is based directly on the Arduino PID library, version 1.1.1,
+--  This package is based on the Arduino PID library, version 1.1.1,
 --  available here: https://playground.arduino.cc/Code/PIDLibrary
 --
 --  The primary difference between this implementation and the Arduino version
 --  is that the controller object does not compute the next time to execute.
 --  The computation update procedure must be called at the rate specified to
---  the configuration routine.
+--  the configuration routine. In addition, the PID object does not retain
+--  pointers to the input, setpoint, and output objects (for the sake of
+--  SPARK compatibility).
 --
 --  For a great explanation of the implementation, step-by-step, see
 --  http://brettbeauregard.com/blog/2011/04/improving-the-beginners-pid-introduction/
 
---  see https://os.mbed.com/users/aberk/code/PID//file/6e12a3e5af19/PID.h/
+--  see https://os.mbed.com/users/aberk/code/PID/file/6e12a3e5af19/PID.h/
 --  for a version using percentages
 
 generic
