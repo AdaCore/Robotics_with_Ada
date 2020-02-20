@@ -170,7 +170,7 @@ package body NXT.Motors is
 
       Reset_Count (This.Encoder);
 
-      --  Finally, configure the output points for controlling the H-Brdige
+      --  Finally, configure the output points for controlling the H-Bridge
       --  circuits that control the rotation direction as well as stopping
       --  the rotation entirely (via procedure Stop)
 
