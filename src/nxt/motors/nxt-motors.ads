@@ -1,6 +1,6 @@
 ------------------------------------------------------------------------------
 --                                                                          --
---                    Copyright (C) 2017, AdaCore                           --
+--                Copyright (C) 2017-2019, AdaCore                          --
 --                                                                          --
 --  Redistribution and use in source and binary forms, with or without      --
 --  modification, are permitted provided that the following conditions are  --
@@ -63,16 +63,6 @@ package NXT.Motors is
       Direction : Directions;
       Power     : Power_Level)
    with Post => Throttle (This) = Power;
-
-   procedure Rotate_To
-     (This       : in out Basic_Motor;
-      Target     : Motor_Encoder_Counts;
-      Power      : Power_Level;
-      Stop_After : Boolean := True)
-   with Post =>
-       (if Stop_After
-        then Throttle (This) = 100
-        else Throttle (This) = Power);
 
    procedure Stop (This : in out Basic_Motor) with
      Post => Throttle (This) = 100;

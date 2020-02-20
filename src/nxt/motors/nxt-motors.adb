@@ -1,6 +1,6 @@
 ------------------------------------------------------------------------------
 --                                                                          --
---                    Copyright (C) 2017, AdaCore                           --
+--                Copyright (C) 2017-2019, AdaCore                          --
 --                                                                          --
 --  Redistribution and use in source and binary forms, with or without      --
 --  modification, are permitted provided that the following conditions are  --
@@ -69,34 +69,6 @@ package body NXT.Motors is
       end case;
       This.Power_Plant.Set_Duty_Cycle (Power);
    end Engage;
-
-   ---------------
-   -- Rotate_To --
-   ---------------
-
-   procedure Rotate_To
-     (This       : in out Basic_Motor;
-      Target     : Motor_Encoder_Counts;
-      Power      : Power_Level;
-      Stop_After : Boolean := True)
-   is
-      Current_Count : constant Motor_Encoder_Counts := Encoder_Count (This);
-   begin
-      if Target > Current_Count then
-         Engage (This, Forward, Power);
-         loop
-            exit when Encoder_Count (This) >= Target;
-         end loop;
-      elsif Target < Current_Count then
-         Engage (This, Backward, Power);
-         loop
-            exit when Encoder_Count (This) <= Target;
-         end loop;
-      end if;
-      if Stop_After then
-         Stop (This);
-      end if;
-   end Rotate_To;
 
    ----------
    -- Stop --
