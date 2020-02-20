@@ -102,11 +102,11 @@ package NXT.Motors is
 private
 
    type Basic_Motor is tagged limited record
-      Encoder     : Rotary_Encoder;
-      Power_Plant : PWM_Modulator;
-      PWM_Channel : Timer_Channel;  -- for PWM modulator
-      Polarity1   : GPIO_Point;
-      Polarity2   : GPIO_Point;
+      Encoder       : Rotary_Encoder;
+      Power_Plant   : PWM_Modulator;
+      Power_Channel : Timer_Channel;  -- for PWM modulator
+      Polarity1     : GPIO_Point;
+      Polarity2     : GPIO_Point;
    end record;
 
 end NXT.Motors;
