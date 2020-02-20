@@ -61,11 +61,11 @@ package body NXT.Motors is
    begin
       case Direction is
          when Forward  =>
-            Set (This.Polarity1);
-            Clear (This.Polarity2);
+            Set (This.H_Bridge_1);
+            Clear (This.H_Bridge_2);
          when Backward =>
-            Clear (This.Polarity1);
-            Set (This.Polarity2);
+            Clear (This.H_Bridge_1);
+            Set (This.H_Bridge_2);
       end case;
       This.Power_Plant.Set_Duty_Cycle (Power);
    end Engage;
@@ -76,8 +76,8 @@ package body NXT.Motors is
 
    procedure Stop (This : in out Basic_Motor) is
    begin
-      Set (This.Polarity1);
-      Set (This.Polarity2);
+      Set (This.H_Bridge_1);
+      Set (This.H_Bridge_2);
       This.Power_Plant.Set_Duty_Cycle (100);  -- full power to lock position
    end Stop;
 
@@ -170,14 +170,18 @@ package body NXT.Motors is
 
       Reset_Count (This.Encoder);
 
-      This.Polarity1 := Polarity1;
-      This.Polarity2 := Polarity2;
+      --  Finally, configure the output points for controlling the H-Brdige
+      --  circuits that control the rotation direction as well as stopping
+      --  the rotation entirely (via procedure Stop)
 
-      Enable_Clock (Polarity1);
-      Enable_Clock (Polarity2);
+      This.H_Bridge_1 := Polarity1;
+      This.H_Bridge_2 := Polarity2;
 
-      Configure_Polarity_Control (Polarity1);
-      Configure_Polarity_Control (Polarity2);
+      Enable_Clock (This.H_Bridge_1);
+      Enable_Clock (This.H_Bridge_2);
+
+      Configure_Polarity_Control (This.H_Bridge_1);
+      Configure_Polarity_Control (This.H_Bridge_2);
    end Initialize;
 
    --------------------------------

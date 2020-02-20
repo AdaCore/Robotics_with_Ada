@@ -104,9 +104,9 @@ private
    type Basic_Motor is tagged limited record
       Encoder       : Rotary_Encoder;
       Power_Plant   : PWM_Modulator;
-      Power_Channel : Timer_Channel;  -- for PWM modulator
-      Polarity1     : GPIO_Point;
-      Polarity2     : GPIO_Point;
+      Power_Channel : Timer_Channel; -- for PWM modulator
+      H_Bridge_1    : GPIO_Point;    -- for H-Bridge control
+      H_Bridge_2    : GPIO_Point;    -- for H-Bridge control
    end record;
 
 end NXT.Motors;
