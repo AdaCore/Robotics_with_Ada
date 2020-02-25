@@ -1,9 +1,4 @@
-with NXT_Shield;   use NXT_Shield;
-with STM32.Device; use STM32.Device;
-with STM32;        use STM32;
-with STM32.GPIO;   use STM32.GPIO;
-with STM32.Timers; use STM32.Timers;
-
+with NXT_Shield;             use NXT_Shield;
 with Hardware_Configuration; use Hardware_Configuration;
 
 procedure Initialize_NXT_Shield is
