@@ -53,8 +53,8 @@ package NXT.Ultrasonic_Sensors is
       Clock_Line      :        GPIO_Point;
       Clock_Frequency :        UInt32;
       Success         :    out Boolean)
-   with Post => Configured (This) and
-                not Enabled (This);
+   with Post'Class => Configured (This) and
+                      not Enabled (This);
    --  Note that a pull-up resistor is required for the clock line, a 2K will
    --  do. Do not put a resistor on the data line, the sensor would not be able
    --  to pull the line low in that case.
@@ -74,8 +74,8 @@ package NXT.Ultrasonic_Sensors is
       Mode          : Scan_Modes := Continuous;
       IO_Successful : out Boolean)
    with
-     Pre  => Configured (This),
-     Post => IO_Successful and then
+     Pre'Class  => Configured (This),
+     Post'Class => IO_Successful and then
              Enabled (This) and then
              Current_Scan_Mode (This) = Mode;
 
@@ -88,9 +88,9 @@ package NXT.Ultrasonic_Sensors is
      (This          : in out Ultrasonic_Sonar_Sensor;
       Reading       : out Centimeters;
       IO_Successful : out Boolean)
-   with Pre => Configured (This) and
-               Enabled (This)  and
-               Current_Scan_Mode (This) = Continuous;
+   with Pre'Class => Configured (This) and
+                     Enabled (This)  and
+                     Current_Scan_Mode (This) = Continuous;
    --  Get the latest single distance reading from the sensor, if any object
    --  is detected within range. Will return 255 if no object is detected.
 
@@ -98,9 +98,9 @@ package NXT.Ultrasonic_Sensors is
      (This          : in out Ultrasonic_Sonar_Sensor;
       IO_Successful : out Boolean)
    with
-     Pre => Configured (This) and
-            Enabled (This) and
-            Current_Scan_Mode (This) = On_Demand;
+     Pre'Class => Configured (This) and
+                  Enabled (This) and
+                  Current_Scan_Mode (This) = On_Demand;
 
    subtype Distances_Index is Integer range 1 .. 8;
 
@@ -113,9 +113,9 @@ package NXT.Ultrasonic_Sensors is
       Readings      : out Distances;
       Actual        : out Natural;
       IO_Successful : out Boolean)
-   with Pre => Configured (This) and
-               Enabled (This) and
-               Current_Scan_Mode (This) = On_Demand;
+   with Pre'Class => Configured (This) and
+                     Enabled (This) and
+                     Current_Scan_Mode (This) = On_Demand;
 
    procedure Get_Distances
      (This          : in out Ultrasonic_Sonar_Sensor;
@@ -124,9 +124,9 @@ package NXT.Ultrasonic_Sensors is
       Readings      : out Distances;
       Count         : out Natural;
       IO_Successful : out Boolean)
-   with Pre => Configured (This) and
-               Enabled (This) and
-               Current_Scan_Mode (This) = On_Demand;
+   with Pre'Class => Configured (This) and
+                     Enabled (This) and
+                     Current_Scan_Mode (This) = On_Demand;
    --  Returns an array of distances, depending on the number of objects
    --  detected within the range of the sensor. In continuous mode, at most one
    --  distance is returned. In ping mode, up to 8 distances are returned, but
@@ -143,18 +143,18 @@ package NXT.Ultrasonic_Sensors is
    function Configured (This : Ultrasonic_Sonar_Sensor) return Boolean;
 
    procedure Disable (This : in out Ultrasonic_Sonar_Sensor) with
-     Pre  => Configured (This),
-     Post => not Enabled (This);
+     Pre'Class  => Configured (This),
+     Post'Class => not Enabled (This);
 
    function Enabled (This : Ultrasonic_Sonar_Sensor) return Boolean;
 
    function Current_Scan_Mode (This : Ultrasonic_Sonar_Sensor) return Scan_Modes
-     with Pre => Configured (This);
+     with Pre'Class => Configured (This);
 
    procedure Warm_Restart
      (This    : in out Ultrasonic_Sonar_Sensor;
       Success :    out Boolean)
-   with Pre => Configured (This) and Enabled (This);
+   with Pre'Class => Configured (This) and Enabled (This);
    --  Note that success indicates that the IO with the device was successful.
    --  It does not query the device in any way. The assumption is that the
    --  device actually responded internally by resetting.
@@ -163,7 +163,7 @@ package NXT.Ultrasonic_Sensors is
      (This    : in out Ultrasonic_Sonar_Sensor;
       Value   :    out String;
       Success :    out Boolean)
-   with Pre => Configured (This) and Enabled (This);
+   with Pre'Class => Configured (This) and Enabled (This);
    --  On return, Value will hold "LEGO" and a null byte. If Value is too short
    --  to hold all 5 characters only those for which room is available are
    --  returned, the rest are truncated. That is not an error.
@@ -172,13 +172,13 @@ package NXT.Ultrasonic_Sensors is
      (This    : in out Ultrasonic_Sonar_Sensor;
       Value   :    out String;
       Success :    out Boolean)
-   with Pre => Configured (This) and Enabled (This);
+   with Pre'Class => Configured (This) and Enabled (This);
 
    procedure Get_Sensor_Type
      (This    : in out Ultrasonic_Sonar_Sensor;
       Value   :    out String;
       Success :    out Boolean)
-   with Pre => Configured (This) and Enabled (This);
+   with Pre'Class => Configured (This) and Enabled (This);
 
    subtype Units_String is String (1 .. 8);
 
@@ -186,7 +186,7 @@ package NXT.Ultrasonic_Sensors is
      (This    : in out Ultrasonic_Sonar_Sensor;
       Units   :    out Units_String;
       Success :    out Boolean)
-   with Pre => Configured (This) and Enabled (This);
+   with Pre'Class => Configured (This) and Enabled (This);
    --  Gets a string indicating the type of units in use by the sensor. The
    --  default response is 10E-2m indicating use of centimeters.
 
@@ -196,7 +196,7 @@ package NXT.Ultrasonic_Sensors is
       Scale_Factor    :    out UInt8;
       Scale_Divisor   :    out UInt8;
       Success         :    out Boolean)
-   with Pre => Configured (This) and Enabled (This);
+   with Pre'Class => Configured (This) and Enabled (This);
 
    procedure Get_Calibration_Data
      (This            : in out Ultrasonic_Sonar_Sensor;
@@ -204,7 +204,7 @@ package NXT.Ultrasonic_Sensors is
       Scale_Factor    :    out UInt8;
       Scale_Divisor   :    out UInt8;
       Success         :    out Boolean)
-   with Pre => Configured (This) and Enabled (This);
+   with Pre'Class => Configured (This) and Enabled (This);
    --  Gets current calibration data
 
    procedure Set_Calibration_Data
@@ -213,7 +213,7 @@ package NXT.Ultrasonic_Sensors is
       Scale_Factor    :        UInt8;
       Scale_Divisor   :        UInt8;
       Success         :    out Boolean)
-   with Pre => Configured (This) and Enabled (This);
+   with Pre'Class => Configured (This) and Enabled (This);
    --  Sets calibration data. NB: This routines does not seem to work, and it
    --  didn't work in the leJOS software either.
 
@@ -221,14 +221,14 @@ package NXT.Ultrasonic_Sensors is
      (This     : in out Ultrasonic_Sonar_Sensor;
       Interval :    out UInt8;
       Success  :    out Boolean)
-   with Pre => Configured (This) and Enabled (This);
+   with Pre'Class => Configured (This) and Enabled (This);
    --  Gets the scan interval used in continuous mode
 
    procedure Set_Continuous_Interval
      (This     : in out Ultrasonic_Sonar_Sensor;
       Interval :        UInt8;
       Success  :    out Boolean)
-   with Pre => Configured (This) and Enabled (This);
+   with Pre'Class => Configured (This) and Enabled (This);
    --  Sets the scan interval to be used in continuous mode
 
 private
@@ -244,7 +244,7 @@ private
 
    type Ultrasonic_Sonar_Sensor (Hardware_Device_Address : I2C_Device_Address) is
       new I2C_Master with record
-         Device_Address      : UInt8;  -- the 7-bit, shifted address
+         Device_Address      : UInt8 := 0;  -- the 7-bit, shifted address
          Enabled             : Boolean := False;
          Configured          : Boolean := False;
          Mode                : Scan_Modes := Continuous;
@@ -284,7 +284,7 @@ private
       Register :        Register_Address;
       Value    :    out String;
       Success  :    out Boolean)
-   with Pre => Value'Length <= 8;
+   with Pre'Class => Value'Length <= 8;
    --  A convenience routine for getting a Sequence from a single register and
    --  converting to type String, since some values returned from the registers
    --  are in fact sequences of characters (for example, the product id).
