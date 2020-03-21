@@ -39,10 +39,10 @@
 --  iterating over the current inputs each time a new input sample is inserted
 --  (in order to compute the running average). However, eventual overflow is
 --  possible, given sufficiently large input sample values and a sufficiently
---  long executon time. Choose the generic actual type for the type Accumulator
+--  long execution time. Choose the generic actual type for the type Accumulator
 --  accordingly.
 
---  This design assums new input sample values are acquired one at a time,
+--  This design assumes new input sample values are acquired one at a time,
 --  and thus inserted into filter objects individually. These filter objects
 --  maintain their own buffers, of the size specified by their discriminant.
 

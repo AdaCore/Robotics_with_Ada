@@ -39,7 +39,7 @@
 --  The average returned from function Value is limited to Sample'First or
 --  Sample'Last.
 
---  This design assums new input sample values are acquired one at a time, and
+--  This design assumes new input sample values are acquired one at a time, and
 --  thus inserted into RMA_Filter objects individually. These RMA_Filter objects
 --  maintain their own buffers, of the size specified by their discriminant.
 
@@ -53,7 +53,7 @@ generic
    type Accumulator is range <>;
    --  The type used for the running total of inputs. The intent is that this
    --  type has a larger range than that of type Sample, so that a larger total
-   --  can be accomodated.
+   --  can be accommodated.
 
    --  For both types, null ranges are not allowed. We check that with the
    --  Compile_Time_Error pragmas below.
