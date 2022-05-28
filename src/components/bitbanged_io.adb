@@ -1,6 +1,6 @@
 ------------------------------------------------------------------------------
 --                                                                          --
---                      Copyright (C) 2018, AdaCore                         --
+--                   Copyright (C) 2018-2022, AdaCore                       --
 --                                                                          --
 --  Redistribution and use in source and binary forms, with or without      --
 --  modification, are permitted provided that the following conditions are  --
@@ -31,7 +31,7 @@
 
 with STM32.Device;   use STM32.Device;
 
-package body BitBanged_I2C is
+package body BitBanged_IO is
 
    ---------------
    -- Configure --
@@ -202,4 +202,4 @@ package body BitBanged_I2C is
       end loop;
    end Write_Byte;
 
-end BitBanged_I2C;
+end BitBanged_IO;

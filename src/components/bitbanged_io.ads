@@ -1,6 +1,6 @@
 ------------------------------------------------------------------------------
 --                                                                          --
---                      Copyright (C) 2018, AdaCore                         --
+--                   Copyright (C) 2018-2022, AdaCore                       --
 --                                                                          --
 --  Redistribution and use in source and binary forms, with or without      --
 --  modification, are permitted provided that the following conditions are  --
@@ -39,7 +39,7 @@ with STM32.GPIO;    use STM32.GPIO;
 with HAL;           use HAL;
 with Ada.Real_Time; use Ada.Real_Time;
 
-package BitBanged_I2C is
+package BitBanged_IO is
 
    type Port is tagged limited private;
 
@@ -145,4 +145,4 @@ private
    function Half_Clock_Cycle_Time (This : Port) return Time_Span is
       (This.Half_Clock_Cycle);
 
-end BitBanged_I2C;
+end BitBanged_IO;

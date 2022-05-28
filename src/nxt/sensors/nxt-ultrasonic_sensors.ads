@@ -1,6 +1,6 @@
 ------------------------------------------------------------------------------
 --                                                                          --
---                      Copyright (C) 2018, AdaCore                         --
+--                   Copyright (C) 2018-2022, AdaCore                       --
 --                                                                          --
 --  Redistribution and use in source and binary forms, with or without      --
 --  modification, are permitted provided that the following conditions are  --
@@ -32,7 +32,7 @@
 --  This package provides a device driver for the Lego NXT Ultrasonic Sensors.
 --  It uses a bit-banged implementation for the low-level I2C I/O.
 
-with BitBanged_I2C.SoftWire; use BitBanged_I2C.SoftWire;
+with BitBanged_IO.SoftWire;  use BitBanged_IO.SoftWire;
 with STM32.GPIO;             use STM32.GPIO;
 with HAL;                    use HAL;
 with Ada.Real_Time;          use Ada.Real_Time;

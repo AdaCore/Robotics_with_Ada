@@ -1,6 +1,6 @@
 ------------------------------------------------------------------------------
 --                                                                          --
---                      Copyright (C) 2018, AdaCore                         --
+--                   Copyright (C) 2018-2022, AdaCore                       --
 --                                                                          --
 --  Redistribution and use in source and binary forms, with or without      --
 --  modification, are permitted provided that the following conditions are  --
@@ -33,9 +33,9 @@
 --  Wire API and the Softwire implementation found here:
 --  https://github.com/felias-fogg/SoftI2CMaster/blob/master/SoftWire.h
 
-package BitBanged_I2C.SoftWire is
+package BitBanged_IO.SoftWire is
 
-   type I2C_Master is new BitBanged_I2C.Port with private;
+   type I2C_Master is new BitBanged_IO.Port with private;
 
    procedure Initialize
      (This            : in out I2C_Master;
@@ -98,7 +98,7 @@ private
    Ack  : constant := 0;
    NAck : constant := 1;
 
-   type I2C_Master is new BitBanged_I2C.Port with record
+   type I2C_Master is new BitBanged_IO.Port with record
       Initialized  : Boolean := False;
       Transmitting : Boolean := False;
    end record;
@@ -137,4 +137,4 @@ private
    function Initialized (This : I2C_Master) return Boolean is
      (This.Initialized);
 
-end BitBanged_I2C.SoftWire;
+end BitBanged_IO.SoftWire;
