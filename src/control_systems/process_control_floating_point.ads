@@ -53,14 +53,15 @@ generic
    --  implementation, to avoid overflow. The actual parameter must have at
    --  least twice the number of digits as the actual for Real, otherwise the
    --  compiler will reject the instantiation.
-package Process_Control_Floating_Point is
+package Process_Control_Floating_Point with
+  SPARK_Mode
+is
 
    pragma Compile_Time_Error (Long_Real'Digits < 2 * Real'Digits, "insufficient Long_Real digits");
 
    pragma Unevaluated_Use_Of_Old (Allow);
 
-   type PID_Controller is tagged limited private with
-     Default_Initial_Condition => not Enabled (PID_Controller);
+   type PID_Controller is tagged limited private;
 
    type Bounds is record
       Min, Max : Real;
@@ -154,6 +155,7 @@ package Process_Control_Floating_Point is
       Interval : Positive_Milliseconds)
    with
      Global => null,
+     Pre'Class  => Interval <= Current_Period (This),
      Post'Class => Current_Period (This) = Interval;
    --  Inform the controller of the new interval at which Compute_Output will be
    --  called.

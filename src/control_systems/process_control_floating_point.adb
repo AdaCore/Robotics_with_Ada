@@ -29,7 +29,9 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
-package body Process_Control_Floating_Point is
+package body Process_Control_Floating_Point with
+  SPARK_Mode
+is
 
    Max_Real : constant Long_Real := Long_Real (Real'Last);
    Min_Real : constant Long_Real := Long_Real (Real'First);
