@@ -1,37 +1,15 @@
-------------------------------------------------------------------------------
---                                                                          --
---                  Copyright (C) 2020-2024, AdaCore                        --
---                                                                          --
---  Redistribution and use in source and binary forms, with or without      --
---  modification, are permitted provided that the following conditions are  --
---  met:                                                                    --
---     1. Redistributions of source code must retain the above copyright    --
---        notice, this list of conditions and the following disclaimer.     --
---     2. Redistributions in binary form must reproduce the above copyright --
---        notice, this list of conditions and the following disclaimer in   --
---        the documentation and/or other materials provided with the        --
---        distribution.                                                     --
---     3. Neither the name of the copyright holder nor the names of its     --
---        contributors may be used to endorse or promote products derived   --
---        from this software without specific prior written permission.     --
---                                                                          --
---   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS    --
---   "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT      --
---   LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR  --
---   A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT   --
---   HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, --
---   SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT       --
---   LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,  --
---   DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY  --
---   THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT    --
---   (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE  --
---   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.   --
---                                                                          --
-------------------------------------------------------------------------------
+--
+--  Copyright (C) 2020-2024, AdaCore
+--
+--  SPDX-License-Identifier: Apache-2.0
+--
+--  Author: Patrick Rogers, rogers@adacore.com, progers@classwide.com
 
 package body Process_Control_Floating_Point with
   SPARK_Mode
 is
+
+   pragma Unevaluated_Use_Of_Old (Allow);
 
    Max_Real : constant Long_Real := Long_Real (Real'Last);
    Min_Real : constant Long_Real := Long_Real (Real'First);
@@ -64,41 +42,47 @@ is
       Period            : Positive_Milliseconds;
       Direction         : Controller_Directions)
    with
-     Post => Specified_Kp (This) = Proportional_Gain  and
-             Specified_Ki (This) = Integral_Gain      and
-             Specified_Kd (This) = Derivative_Gain    and
-             Current_Direction (This) = Current_Direction (This)'Old and
-             Current_Output_Limits (This) = Current_Output_Limits (This)'Old and
+     Post => Specified_Kp (This) = Proportional_Gain  and then
+             Specified_Ki (This) = Integral_Gain      and then
+             Specified_Kd (This) = Derivative_Gain    and then
+             Current_Period (This) = Current_Period (This)'Old  and then
+             Current_Direction (This) = Current_Direction (This)'Old         and then
+             Current_Output_Limits (This) = Current_Output_Limits (This)'Old and then
              Enabled (This) = Enabled (This)'Old;
-   --  Sets the PID gain values within This controller based on the Period at
-   --  which the controller will compute the output and the Direction that the
-   --  controller works. Called by Configure and the externally visible tuning
-   --  routine (Reconfigure_Gain_Parameters). This is an internal routine
-   --  so that all inputs are explicit parameters, rather than relying on
-   --  components of This as the visible procedure does, which would require
-   --  them to be set prior to calling the external version within Configure.
-   --  That would be too delicate by half.
+   --  Sets the PID gain values within This controller based on the
+   --  Invocation_Period at which the controller will compute the output and
+   --  the Direction that the controller works. Called by Configured_Controller
+   --  and the externally visible tuning routine (Reconfigure_Gain_Parameters).
+   --  This is an internal routine so that all inputs are explicit parameters,
+   --  rather than relying on components of This as the visible procedure does,
+   --  which would require them to be set prior to calling the external version
+   --  within Configure. That would be too delicate by half.
 
-   ---------------
-   -- Configure --
-   ---------------
+   ---------------------------
+   -- Configured_Controller --
+   ---------------------------
 
-   procedure Configure
-     (This              : in out PID_Controller;
-      Proportional_Gain : Real;
+   function Configured_Controller
+     (Proportional_Gain : Real;
       Integral_Gain     : Real;
       Derivative_Gain   : Real;
-      Period            : Positive_Milliseconds;
+      Invocation_Period : Positive_Milliseconds;
       Output_Limits     : Bounds;
       Direction         : Controller_Directions := Direct)
+   return PID_Controller
    is
    begin
-      This.Enabled := False;
-      This.Period := Period;
-      This.Output_Limits := Output_Limits;
-      This.Direction := Direction;
-      Tune (This, Proportional_Gain, Integral_Gain, Derivative_Gain, Period, Direction);
-   end Configure;
+      return Result : PID_Controller do
+         Result.Enabled := False;
+         Result.Period := Invocation_Period;
+         Result.Output_Limits := Output_Limits;
+         Result.Direction := Direction;
+         Tune (Result,
+               Proportional_Gain, Integral_Gain, Derivative_Gain,
+               Invocation_Period,
+               Direction);
+      end return;
+   end Configured_Controller;
 
    --------------------
    -- Compute_Output --
@@ -111,20 +95,19 @@ is
       Control_Variable : in out Real)
    is
       Error        : Long_Real;
-      Input_Change : Long_Real;
+      Input_Change : constant Long_Real := Long_Real (Process_Variable) - Long_Real (This.Previous_PV);
       New_Output   : Long_Real;
    begin
       if not This.Enabled then
          return;
       end if;
       Error := Long_Real (Setpoint) - Long_Real (Process_Variable);
-      Input_Change := Long_Real (Process_Variable) - Long_Real (This.Previous_Input);
       This.I_Term := This.I_Term + (Long_Real (This.Ki) * Error);
       Constrain (Real (This.I_Term), This.Output_Limits);
       New_Output := (Long_Real (This.Kp) * Error) + This.I_Term - (Long_Real (This.Kd) * Input_Change);
       Constrain (Real (New_Output), This.Output_Limits);
       Control_Variable := Real (New_Output);
-      This.Previous_Input := Process_Variable;
+      This.Previous_PV := Process_Variable;
    end Compute_Output;
 
    ----------
@@ -170,23 +153,23 @@ is
    ------------------------
 
    procedure Reconfigure_Period
-     (This     : in out PID_Controller;
-      Interval : Positive_Milliseconds)
+     (This       : in out PID_Controller;
+      New_Period : Positive_Milliseconds)
    is
-      Ratio : constant Long_Real := Long_Real (Interval) / Long_Real (This.Period);
+      Ratio : constant Real := Real (New_Period) / Real (This.Period);
       Temp  : Long_Real;
    begin
       --  This.Ki := This.Ki * Ratio;
-      Temp := Long_Real (This.Ki) * Ratio;
+      Temp := Long_Real (This.Ki) * Long_Real (Ratio);
       Constrain_To_Real (Temp);
       This.Ki := Real (Temp);
 
       --  This.Kd := This.Kd / Ratio;
-      Temp := Long_Real (This.Kd) / Ratio;
+      Temp := Long_Real (This.Kd) / Long_Real (Ratio);
       Constrain_To_Real (Temp);
       This.Kd := Real (Temp);
 
-      This.Period := Interval;
+      This.Period := New_Period;
    end Reconfigure_Period;
 
    -------------------------------
@@ -196,10 +179,10 @@ is
    procedure Reconfigure_Output_Limits
      (This             : in out PID_Controller;
       Control_Variable : in out Real;
-      Limit            : Bounds)
+      New_Limits       : Bounds)
    is
    begin
-      This.Output_Limits := Limit;
+      This.Output_Limits := New_Limits;
       if This.Enabled then
          Constrain (Control_Variable, This.Output_Limits);
          Constrain (Real (This.I_Term), This.Output_Limits);
@@ -217,10 +200,10 @@ is
    is
    begin
       if not This.Enabled then
-         --  we just went from disabled to enabled so we should ensure a
+         --  we are going from disabled to enabled so we should ensure a
          --  "bumpless" mode change
          This.I_Term := Long_Real (Control_Variable);
-         This.Previous_Input := Process_Variable;
+         This.Previous_PV := Process_Variable;
          Constrain (Real (This.I_Term), This.Output_Limits);
       end if;
       This.Enabled := True;
