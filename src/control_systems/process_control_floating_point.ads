@@ -220,12 +220,10 @@ private
 
       Previous_PV   : Real := 0.0;
       I_Term        : Long_Real := 0.0;
-
-      Direction     : Controller_Directions := Direct;
-      Period        : Positive_Milliseconds := 1;
-      Output_Limits : Bounds := (0.0, 0.1);
-
-      Enabled       : Boolean := False;  -- not arbitrary, all others are.
+      Direction     : Controller_Directions;
+      Period        : Positive_Milliseconds;
+      Output_Limits : Bounds;
+      Enabled       : Boolean;
    end record;
 
    -------------
